@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "name": "Municipal Demarcation Board ArcGIS Open Data",
+      "priority": 1,
+      "source_type": "arcgis_rest",
+      "url": "https://services6.arcgis.com/VBRh56lBQJSUxMBm/arcgis/rest/services/",
+      "format": "GeoJSON",
+      "notes": "Official MDB ArcGIS portal. Query for Johannesburg wards. May require manual export.",
+      "license_notes": "Open Government License",
+      "last_checked_at": "2026-07-01"
+    },
+    {
+      "name": "open.africa Johannesburg Ward Shapefile",
+      "priority": 2,
+      "source_type": "shapefile",
+      "url": "https://open.africa/dataset/johannesburg-metropolitan-municipality-wards",
+      "format": "Shapefile",
+      "notes": "Practical fallback. Sourced from Demarcation Board Gauteng GIS data.",
+      "license_notes": "Open data",
+      "last_checked_at": "2026-07-01"
+    },
+    {
+      "name": "City of Johannesburg Ward Map Books",
+      "priority": 3,
+      "source_type": "pdf",
+      "url": "https://www.joburg.org.za",
+      "format": "PDF",
+      "notes": "Useful for validating ward numbers, regions, area names. Not suitable for automated polygon import.",
+      "license_notes": "Public document",
+      "last_checked_at": "2026-07-01"
+    }
+  ]
+}

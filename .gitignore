@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# geo raw data (large files — download on demand)
+/data/raw/
+
+# source PDFs (large — keep locally only)
+/data/sources/*.pdf

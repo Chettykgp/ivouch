@@ -1,0 +1,36 @@
+{
+  "source": "SPWard — The Guy Contact List",
+  "description": "Community-curated contact list for Ward 23 (Glenvista area), Johannesburg South. Compiled and maintained by local residents via WhatsApp group.",
+  "file": "spward-guy-list-may-2026.pdf",
+  "version": "May 2026 Update",
+  "date_of_document": "2026-05-03",
+  "imported_at": "2026-07-01",
+  "imported_by": "admin",
+  "community": "Johannesburg Ward 23 / Glenvista",
+  "total_businesses_extracted": 105,
+  "sections": [
+    "Home Maintenance",
+    "Other Repairs",
+    "Garden / Outdoor",
+    "Pool Service",
+    "Animals",
+    "Printing & Signage",
+    "Food Related",
+    "Beauty / Wellness",
+    "Education / Sports",
+    "Health & Care",
+    "Other",
+    "Transport",
+    "Law & More"
+  ],
+  "notes": [
+    "All phone numbers captured as-is from the PDF.",
+    "WhatsApp number set equal to phone number where only one number was provided.",
+    "Businesses inserted with status=pending — admin must review before making live.",
+    "All marked as is_community_sourced=true.",
+    "Slugs may need review where business name was a person's first name only.",
+    "Some entries had duplicate phone numbers (e.g. Thabani Plumbing shares number with Johan Waterproofing — verify).",
+    "Pool Service Kevin had no phone number in source list — excluded.",
+    "Doug Cupboards had two numbers — primary and secondary both captured."
+  ]
+}
