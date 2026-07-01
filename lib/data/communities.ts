@@ -1,6 +1,33 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Community, CommunityAlias } from '@/types'
 
+export interface CommunityStats {
+  businessCount: number
+  vouchCount: number
+}
+
+/** Business + vouch totals across a set of related community ids. */
+export async function getCommunityStats(relatedIds: string[]): Promise<CommunityStats> {
+  if (relatedIds.length === 0) return { businessCount: 0, vouchCount: 0 }
+  const supabase = await createClient()
+
+  const [{ data: bizRows }, { count: vouchCount }] = await Promise.all([
+    supabase
+      .from('business_communities')
+      .select('business_id, businesses!inner(status)')
+      .in('community_id', relatedIds)
+      .eq('businesses.status', 'active'),
+    supabase
+      .from('vouches')
+      .select('*', { count: 'exact', head: true })
+      .in('community_id', relatedIds)
+      .eq('status', 'active'),
+  ])
+
+  const uniqueBiz = new Set((bizRows ?? []).map((r) => (r as { business_id: string }).business_id))
+  return { businessCount: uniqueBiz.size, vouchCount: vouchCount ?? 0 }
+}
+
 export async function getCommunities(): Promise<Community[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -33,8 +60,24 @@ export async function getCommunityBySlug(slug: string): Promise<Community | null
     .eq('slug', slug)
     .eq('status', 'active')
     .single()
-  if (error) return null
-  return data as Community
+  if (!error && data) return data as Community
+
+  // Fall back to community aliases so legacy/alternate slugs still resolve.
+  const { data: alias } = await supabase
+    .from('community_aliases')
+    .select('community_id')
+    .eq('alias_slug', slug)
+    .maybeSingle()
+  if (!alias?.community_id) return null
+
+  const { data: viaAlias, error: aliasErr } = await supabase
+    .from('communities')
+    .select('*, parent_community:parent_community_id(*)')
+    .eq('id', alias.community_id)
+    .eq('status', 'active')
+    .single()
+  if (aliasErr) return null
+  return viaAlias as Community
 }
 
 export async function getCommunityWithContext(slug: string): Promise<{

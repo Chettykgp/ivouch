@@ -89,6 +89,15 @@ export interface Category {
   description: string | null
   icon: string | null
   status: 'active' | 'inactive'
+  group_name: string | null
+  sort_order: number | null
+  is_featured: boolean | null
+  business_count?: number
+}
+
+export interface CategoryGroup {
+  group_name: string
+  categories: Category[]
 }
 
 export interface Business {
@@ -171,4 +180,21 @@ export interface Report {
   details: string | null
   status: ReportStatus
   created_at: string
+}
+
+/** A vouch shaped for the social activity feed. */
+export interface ActivityVouch {
+  id: string
+  created_at: string
+  comment: string | null
+  tags: string[]
+  voucherName: string
+  voucherCommunity: string | null
+  business: {
+    id: string
+    name: string
+    slug: string
+    categoryName: string | null
+    categoryIcon: string | null
+  }
 }

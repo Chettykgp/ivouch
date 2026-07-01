@@ -120,12 +120,43 @@
 /* iVouch Brand Colors */
 :root {
   --navy: #102A43;
+  --navy-deep: #0A1E30;
   --vouch-green: #20B26B;
+  --vouch-green-dark: #159257;
   --sunshine: #FFC857;
   --cream: #FFF8EC;
   --charcoal: #1F2933;
   --cloud-grey: #E8EEF2;
   --coral: #F25F5C;
+
+  /* Primary royal blue (homepage accent) */
+  --ivouch-blue: #2F6BFF;
+  --ivouch-blue-dark: #1E4FD6;
+  --ivouch-blue-soft: #EAF0FF;
+  --ink: #0B1F4E;
+  --mist: #F5F7FD;
+
+  /* Layered soft shadows */
+  --shadow-soft: 0 1px 2px rgba(16, 42, 67, 0.04), 0 4px 12px rgba(16, 42, 67, 0.06);
+  --shadow-lift: 0 2px 4px rgba(16, 42, 67, 0.06), 0 12px 28px rgba(16, 42, 67, 0.12);
+  --shadow-blue: 0 8px 24px rgba(47, 107, 255, 0.28);
+}
+
+/* Make brand colors available as Tailwind utilities (bg-*, text-*, border-*) */
+@theme {
+  --color-navy: #102A43;
+  --color-navy-deep: #0A1E30;
+  --color-vouch-green: #20B26B;
+  --color-sunshine: #FFC857;
+  --color-cream: #FFF8EC;
+  --color-charcoal: #1F2933;
+  --color-cloud-grey: #E8EEF2;
+  --color-coral: #F25F5C;
+  --color-whatsapp: #25D366;
+  --color-ivouch-blue: #2F6BFF;
+  --color-ivouch-blue-dark: #1E4FD6;
+  --color-ink: #0B1F4E;
+  --color-mist: #F5F7FD;
 }
 
 @layer base {
@@ -138,5 +169,121 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   iVouch premium utilities
+--------------------------------------------------------------------------- */
+@layer utilities {
+  .card-soft {
+    background-color: #fff;
+    border: 1px solid var(--cloud-grey);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    white-space: nowrap;
+    background-color: var(--cloud-grey);
+    color: var(--charcoal);
+  }
+  .chip-green {
+    background-color: rgba(32, 178, 107, 0.12);
+    color: var(--vouch-green-dark);
+  }
+  .chip-navy {
+    background-color: var(--navy);
+    color: #fff;
+  }
+
+  .btn-vouch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 0.9rem;
+    background-image: linear-gradient(135deg, var(--vouch-green) 0%, var(--vouch-green-dark) 100%);
+    box-shadow: 0 6px 16px rgba(32, 178, 107, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-vouch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(32, 178, 107, 0.45);
+  }
+  .btn-vouch:active {
+    transform: translateY(0);
+  }
+
+  .hero-navy {
+    background-image: radial-gradient(120% 120% at 50% 0%, var(--navy) 0%, var(--navy-deep) 100%);
+  }
+  .hero-cream {
+    background-image: linear-gradient(180deg, var(--cream) 0%, #ffffff 100%);
+  }
+
+  .text-gradient-green {
+    background-image: linear-gradient(135deg, var(--vouch-green) 0%, var(--sunshine) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(32, 178, 107, 0.4);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  55% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+.animate-heart-pop {
+  animation: heart-pop 0.5s ease-in-out;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #eef2f5 25%, #f7fafc 50%, #eef2f5 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 0.5rem;
 }

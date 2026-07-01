@@ -7,24 +7,71 @@ import { createClient } from '@/lib/supabase/client'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 
+function GoogleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden>
+      <path
+        fill="#FFC107"
+        d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+      />
+      <path
+        fill="#FF3D00"
+        d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+      />
+    </svg>
+  )
+}
+
 function AuthForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/'
+  const urlError = searchParams.get('error')
+
+  const supabase = createClient()
+
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [error, setError] = useState<string | null>(urlError)
   const [success, setSuccess] = useState<string | null>(null)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/'
 
-  const supabase = createClient()
+  const inputClass =
+    'w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus-ring transition-shadow'
+  const inputStyle = { borderColor: 'var(--cloud-grey)' as const }
+
+  async function handleGoogle() {
+    setError(null)
+    setGoogleLoading(true)
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+      },
+    })
+    if (oauthError) {
+      setError(oauthError.message)
+      setGoogleLoading(false)
+    }
+    // On success the browser redirects to Google.
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     if (mode === 'signup') {
       const { error: signUpError } = await supabase.auth.signUp({
@@ -32,18 +79,15 @@ function AuthForm() {
         password,
         options: {
           data: { display_name: displayName },
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirect)}`,
         },
       })
-      if (signUpError) {
-        setError(signUpError.message)
-      } else {
-        setSuccess('Account created! Please check your email to confirm your address.')
-      }
+      if (signUpError) setError(signUpError.message)
+      else setSuccess('Account created! Check your email to confirm your address, then sign in.')
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-      if (signInError) {
-        setError(signInError.message)
-      } else {
+      if (signInError) setError(signInError.message)
+      else {
         router.push(redirect)
         router.refresh()
       }
@@ -51,12 +95,31 @@ function AuthForm() {
     setLoading(false)
   }
 
+  async function handleMagicLink() {
+    if (!email) {
+      setError('Enter your email first, then request a magic link.')
+      return
+    }
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+      },
+    })
+    if (otpError) setError(otpError.message)
+    else setSuccess(`We emailed a sign-in link to ${email}. Check your inbox.`)
+    setLoading(false)
+  }
+
   return (
     <>
       <Header />
-      <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16">
+        <div className="w-full max-w-md animate-fade-up">
+          <div className="text-center mb-7">
             <div className="text-3xl font-black mb-2" style={{ color: 'var(--navy)' }}>
               i<span style={{ color: 'var(--vouch-green)' }}>Vouch</span>
             </div>
@@ -64,27 +127,64 @@ function AuthForm() {
               {mode === 'signin' ? 'Welcome back' : 'Join iVouch'}
             </h1>
             <p className="text-gray-500 text-sm mt-1">
-              {mode === 'signin' ? 'Sign in to vouch for local businesses' : 'Create your free account'}
+              {mode === 'signin'
+                ? 'Sign in to vouch for people in Ward 23'
+                : 'Create your free account'}
             </p>
           </div>
 
-          <div
-            className="rounded-2xl p-8 shadow-sm border"
-            style={{ backgroundColor: 'white', borderColor: 'var(--cloud-grey)' }}
-          >
-            {/* Tab toggle */}
-            <div className="flex rounded-xl overflow-hidden border mb-6" style={{ borderColor: 'var(--cloud-grey)' }}>
+          <div className="card-soft p-6 sm:p-8">
+            {/* Google — prominent, top */}
+            <button
+              type="button"
+              onClick={handleGoogle}
+              disabled={googleLoading}
+              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border font-semibold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-60"
+              style={{ borderColor: 'var(--cloud-grey)', color: 'var(--charcoal)' }}
+            >
+              <GoogleIcon />
+              {googleLoading ? 'Redirecting to Google…' : 'Continue with Google'}
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="h-px flex-1" style={{ backgroundColor: 'var(--cloud-grey)' }} />
+              <span className="text-xs text-gray-400 font-medium">or use email</span>
+              <div className="h-px flex-1" style={{ backgroundColor: 'var(--cloud-grey)' }} />
+            </div>
+
+            {/* Sign in / Register segmented control */}
+            <div
+              className="flex rounded-xl overflow-hidden border mb-5"
+              style={{ borderColor: 'var(--cloud-grey)' }}
+            >
               <button
-                onClick={() => setMode('signin')}
+                type="button"
+                onClick={() => {
+                  setMode('signin')
+                  setSuccess(null)
+                }}
                 className="flex-1 py-2.5 text-sm font-semibold transition-colors"
-                style={mode === 'signin' ? { backgroundColor: 'var(--navy)', color: 'white' } : { color: 'var(--charcoal)' }}
+                style={
+                  mode === 'signin'
+                    ? { backgroundColor: 'var(--navy)', color: 'white' }
+                    : { color: 'var(--charcoal)' }
+                }
               >
                 Sign In
               </button>
               <button
-                onClick={() => setMode('signup')}
+                type="button"
+                onClick={() => {
+                  setMode('signup')
+                  setSuccess(null)
+                }}
                 className="flex-1 py-2.5 text-sm font-semibold transition-colors"
-                style={mode === 'signup' ? { backgroundColor: 'var(--navy)', color: 'white' } : { color: 'var(--charcoal)' }}
+                style={
+                  mode === 'signup'
+                    ? { backgroundColor: 'var(--navy)', color: 'white' }
+                    : { color: 'var(--charcoal)' }
+                }
               >
                 Register
               </button>
@@ -93,7 +193,7 @@ function AuthForm() {
             {success ? (
               <div
                 className="rounded-xl p-4 text-sm text-center"
-                style={{ backgroundColor: 'var(--vouch-green)', color: 'white' }}
+                style={{ backgroundColor: 'rgba(32,178,107,0.12)', color: 'var(--vouch-green-dark)' }}
               >
                 {success}
               </div>
@@ -110,8 +210,8 @@ function AuthForm() {
                       onChange={(e) => setDisplayName(e.target.value)}
                       required
                       placeholder="How your neighbours see you"
-                      className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2"
-                      style={{ borderColor: 'var(--cloud-grey)' }}
+                      className={inputClass}
+                      style={inputStyle}
                     />
                   </div>
                 )}
@@ -125,8 +225,8 @@ function AuthForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="your@email.co.za"
-                    className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2"
-                    style={{ borderColor: 'var(--cloud-grey)' }}
+                    className={inputClass}
+                    style={inputStyle}
                   />
                 </div>
                 <div>
@@ -138,32 +238,48 @@ function AuthForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={6}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2"
-                    style={{ borderColor: 'var(--cloud-grey)' }}
+                    className={inputClass}
+                    style={inputStyle}
                   />
                 </div>
 
                 {error && (
-                  <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-xl">{error}</div>
+                  <div className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">{error}</div>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-                  style={{ backgroundColor: 'var(--vouch-green)' }}
+                  className="btn-vouch w-full py-3 disabled:opacity-60"
                 >
-                  {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+                  {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleMagicLink}
+                  disabled={loading}
+                  className="w-full text-sm font-semibold py-2 disabled:opacity-60"
+                  style={{ color: 'var(--navy)' }}
+                >
+                  ✉️ Email me a magic link instead
                 </button>
               </form>
             )}
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-6">
-            By creating an account you agree to our{' '}
-            <Link href="/terms" className="underline">Terms</Link> and{' '}
-            <Link href="/privacy" className="underline">Privacy Policy</Link>.
+            By continuing you agree to our{' '}
+            <Link href="/terms" className="underline">
+              Terms
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="underline">
+              Privacy Policy
+            </Link>
+            .
           </p>
         </div>
       </main>
@@ -174,7 +290,7 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="flex-1 flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="flex-1 flex items-center justify-center py-20">Loading…</div>}>
       <AuthForm />
     </Suspense>
   )

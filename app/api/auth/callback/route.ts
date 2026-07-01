@@ -6,7 +6,9 @@ import { cookies } from 'next/headers'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') ?? '/'
+  // Support both `redirect` (used by our auth page / OAuth options) and `next`.
+  const redirectTo =
+    requestUrl.searchParams.get('redirect') ?? requestUrl.searchParams.get('next') ?? '/'
 
   if (code) {
     const cookieStore = await cookies()
@@ -15,19 +17,30 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          getAll() { return cookieStore.getAll() },
+          getAll() {
+            return cookieStore.getAll()
+          },
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
               )
-            } catch {}
+            } catch {
+              // Called from a context where cookies can't be set; ignore.
+            }
           },
         },
       }
     )
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      return NextResponse.redirect(
+        new URL(`/auth?error=${encodeURIComponent(error.message)}`, requestUrl.origin)
+      )
+    }
   }
 
-  return NextResponse.redirect(new URL(next, requestUrl.origin))
+  // Only allow same-origin relative redirects.
+  const safePath = redirectTo.startsWith('/') ? redirectTo : '/'
+  return NextResponse.redirect(new URL(safePath, requestUrl.origin))
 }
