@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Logo from '@/components/layout/Logo'
 
 function GoogleIcon() {
   return (
@@ -38,7 +39,9 @@ function AuthForm() {
 
   const supabase = createClient()
 
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
+  const [mode, setMode] = useState<'signin' | 'signup'>(
+    searchParams.get('mode') === 'signup' ? 'signup' : 'signin'
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -117,13 +120,13 @@ function AuthForm() {
   return (
     <>
       <Header />
-      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16" style={{ backgroundColor: 'var(--mist)' }}>
         <div className="w-full max-w-md animate-fade-up">
           <div className="text-center mb-7">
-            <div className="text-3xl font-black mb-2" style={{ color: 'var(--navy)' }}>
-              i<span style={{ color: 'var(--vouch-green)' }}>Vouch</span>
+            <div className="flex justify-center mb-3">
+              <Logo href={null} size={38} />
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--charcoal)' }}>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--ink)' }}>
               {mode === 'signin' ? 'Welcome back' : 'Join iVouch'}
             </h1>
             <p className="text-gray-500 text-sm mt-1">
@@ -140,7 +143,7 @@ function AuthForm() {
               onClick={handleGoogle}
               disabled={googleLoading}
               className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border font-semibold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-60"
-              style={{ borderColor: 'var(--cloud-grey)', color: 'var(--charcoal)' }}
+              style={{ borderColor: 'var(--cloud-grey)', color: 'var(--ink)' }}
             >
               <GoogleIcon />
               {googleLoading ? 'Redirecting to Google…' : 'Continue with Google'}
@@ -167,8 +170,8 @@ function AuthForm() {
                 className="flex-1 py-2.5 text-sm font-semibold transition-colors"
                 style={
                   mode === 'signin'
-                    ? { backgroundColor: 'var(--navy)', color: 'white' }
-                    : { color: 'var(--charcoal)' }
+                    ? { backgroundColor: 'var(--ivouch-blue)', color: 'white' }
+                    : { color: 'var(--ink)' }
                 }
               >
                 Sign In
@@ -182,8 +185,8 @@ function AuthForm() {
                 className="flex-1 py-2.5 text-sm font-semibold transition-colors"
                 style={
                   mode === 'signup'
-                    ? { backgroundColor: 'var(--navy)', color: 'white' }
-                    : { color: 'var(--charcoal)' }
+                    ? { backgroundColor: 'var(--ivouch-blue)', color: 'white' }
+                    : { color: 'var(--ink)' }
                 }
               >
                 Register
@@ -193,7 +196,7 @@ function AuthForm() {
             {success ? (
               <div
                 className="rounded-xl p-4 text-sm text-center"
-                style={{ backgroundColor: 'rgba(32,178,107,0.12)', color: 'var(--vouch-green-dark)' }}
+                style={{ backgroundColor: 'rgba(47,107,255,0.12)', color: 'var(--ivouch-blue-dark)' }}
               >
                 {success}
               </div>
@@ -201,7 +204,7 @@ function AuthForm() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'signup' && (
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--charcoal)' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ink)' }}>
                       Display Name
                     </label>
                     <input
@@ -216,7 +219,7 @@ function AuthForm() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--charcoal)' }}>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ink)' }}>
                     Email
                   </label>
                   <input
@@ -230,7 +233,7 @@ function AuthForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--charcoal)' }}>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--ink)' }}>
                     Password
                   </label>
                   <input
@@ -252,7 +255,7 @@ function AuthForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-vouch w-full py-3 disabled:opacity-60"
+                  className="btn-blue w-full py-3 disabled:opacity-60"
                 >
                   {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
                 </button>
@@ -262,7 +265,7 @@ function AuthForm() {
                   onClick={handleMagicLink}
                   disabled={loading}
                   className="w-full text-sm font-semibold py-2 disabled:opacity-60"
-                  style={{ color: 'var(--navy)' }}
+                  style={{ color: 'var(--ivouch-blue)' }}
                 >
                   ✉️ Email me a magic link instead
                 </button>

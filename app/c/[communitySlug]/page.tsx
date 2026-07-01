@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Building2, Heart } from 'lucide-react'
+import { MapPin, Store, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BusinessCard from '@/components/business/BusinessCard'
@@ -35,93 +35,86 @@ export default async function CommunityPage({ params }: Props) {
 
   const isWard = community.type === 'ward'
   const neighbourhoods = children.map((c) => c.name)
+  const aliasHoods = (ctx.aliases ?? [])
+    .filter((a) => a.alias_type === 'suburb')
+    .map((a) => a.alias_name)
+  const hoods = neighbourhoods.length > 0 ? neighbourhoods : aliasHoods
 
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1" style={{ backgroundColor: 'var(--mist)' }}>
         {/* Hero */}
-        <div className="hero-navy py-14 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            {isWard && (
-              <span
-                className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4"
-                style={{ backgroundColor: 'var(--vouch-green)', color: 'white' }}
-              >
-                📍 Your community
-              </span>
-            )}
+        <section className="page-hero px-4 pt-12 pb-10">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 mb-5 text-sm font-semibold"
+              style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+              <MapPin size={14} /> {isWard ? 'Your community' : 'Neighbourhood'}
+            </div>
 
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-3" style={{ color: 'var(--ink)' }}>
               {community.display_name ?? community.name}
             </h1>
 
-            {isWard ? (
-              <p className="text-white/70 text-lg mb-6">
-                One community, not separate suburbs — find people your neighbours vouch for.
-              </p>
-            ) : (
-              <p className="text-white/80 text-lg mb-6">
-                Find people your neighbours vouch for.
-              </p>
-            )}
+            <p className="text-lg mb-6 max-w-xl mx-auto" style={{ color: '#5A6B85' }}>
+              {isWard
+                ? 'One community, not separate suburbs — find people your neighbours vouch for.'
+                : 'Find people your neighbours vouch for.'}
+            </p>
 
             {/* Neighbourhood chips */}
-            {isWard && neighbourhoods.length > 0 && (
-              <div className="max-w-2xl mx-auto mb-6">
-                <p className="text-white/50 text-xs uppercase tracking-wide mb-2">
-                  One community · {neighbourhoods.length} neighbourhoods
+            {isWard && hoods.length > 0 && (
+              <div className="max-w-2xl mx-auto mb-7">
+                <p className="text-xs uppercase tracking-wide mb-2.5 text-gray-400">
+                  One community · {hoods.length} neighbourhoods
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  {neighbourhoods.map((n) => (
-                    <span
-                      key={n}
-                      className="px-3 py-1 rounded-full text-sm font-medium text-white"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-                    >
-                      {n}
-                    </span>
+                  {hoods.map((n) => (
+                    <span key={n} className="chip chip-blue">{n}</span>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="flex justify-center gap-6 text-white/70 text-sm">
-              <span className="flex items-center gap-1">
-                <Building2 size={14} /> {businesses.length} businesses
+            {/* Stats */}
+            <div className="flex justify-center flex-wrap gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white border px-4 py-2 text-sm font-semibold shadow-[var(--shadow-soft)]"
+                style={{ borderColor: 'var(--cloud-grey)', color: 'var(--ink)' }}>
+                <Store size={15} style={{ color: 'var(--ivouch-blue)' }} /> {businesses.length} businesses
               </span>
-              {isWard && neighbourhoods.length > 0 && (
-                <span className="flex items-center gap-1">
-                  <MapPin size={14} /> {neighbourhoods.length} neighbourhoods
+              {isWard && hoods.length > 0 && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-white border px-4 py-2 text-sm font-semibold shadow-[var(--shadow-soft)]"
+                  style={{ borderColor: 'var(--cloud-grey)', color: 'var(--ink)' }}>
+                  <MapPin size={15} style={{ color: 'var(--ivouch-blue)' }} /> {hoods.length} neighbourhoods
                 </span>
               )}
-              <span className="flex items-center gap-1">
-                <Heart size={14} style={{ color: 'var(--vouch-green)' }} /> {feed.length} recent vouches
+              <span className="inline-flex items-center gap-2 rounded-full bg-white border px-4 py-2 text-sm font-semibold shadow-[var(--shadow-soft)]"
+                style={{ borderColor: 'var(--cloud-grey)', color: 'var(--ink)' }}>
+                <ShieldCheck size={15} style={{ color: 'var(--ivouch-blue)' }} /> {feed.length} recent vouches
               </span>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto px-4 py-10">
           {/* Category chips */}
           <div className="mb-10">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Browse by category
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400">
+                Browse by category
+              </h2>
+              <Link href="/categories" className="text-sm font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
+                style={{ color: 'var(--ivouch-blue)' }}>
+                See all <ArrowRight size={14} />
+              </Link>
+            </div>
             <CategoryChips categories={categories} communitySlug={community.slug} />
-            <Link
-              href="/categories"
-              className="inline-block mt-3 text-sm font-semibold"
-              style={{ color: 'var(--vouch-green)' }}
-            >
-              See all categories →
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Businesses */}
             <div className="lg:col-span-2">
-              <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--charcoal)' }}>
+              <h2 className="text-xl font-extrabold mb-4" style={{ color: 'var(--ink)' }}>
                 {businesses.length > 0
                   ? `${businesses.length} businesses your neighbours vouch for`
                   : 'No businesses yet'}
@@ -135,10 +128,10 @@ export default async function CommunityPage({ params }: Props) {
               ) : (
                 <div className="card-soft text-center py-16 px-4">
                   <div className="text-4xl mb-3">🏘️</div>
-                  <p className="mb-4 font-semibold" style={{ color: 'var(--charcoal)' }}>
+                  <p className="mb-4 font-semibold" style={{ color: 'var(--ink)' }}>
                     Be the first to add someone great in Ward 23.
                   </p>
-                  <Link href="/add-business" className="btn-vouch inline-block px-6 py-3">
+                  <Link href="/add-business" className="btn-blue inline-flex px-6 py-3">
                     Add a business
                   </Link>
                 </div>
@@ -147,8 +140,9 @@ export default async function CommunityPage({ params }: Props) {
 
             {/* Activity feed */}
             <div className="lg:col-span-1">
-              <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--charcoal)' }}>
-                What&apos;s happening in Ward 23
+              <h2 className="text-xl font-extrabold mb-4 flex items-center gap-2" style={{ color: 'var(--ink)' }}>
+                <Sparkles size={18} style={{ color: 'var(--ivouch-blue)' }} />
+                Happening now
               </h2>
               <ActivityFeed
                 vouches={feed}

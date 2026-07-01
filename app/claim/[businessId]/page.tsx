@@ -67,7 +67,7 @@ export default function ClaimPage() {
             <div className="text-4xl mb-4">✅</div>
             <h1 className="text-2xl font-black mb-2" style={{ color: 'var(--charcoal)' }}>Claim submitted!</h1>
             <p className="text-gray-500 mb-6 text-sm">We&apos;ll review your claim and be in touch within 2–3 business days.</p>
-            <Link href="/" className="px-6 py-3 rounded-xl font-bold text-white inline-block" style={{ backgroundColor: 'var(--vouch-green)' }}>
+            <Link href="/" className="px-6 py-3 rounded-xl font-bold text-white inline-block" style={{ backgroundColor: 'var(--ivouch-blue)' }}>
               Back to Home
             </Link>
           </div>
@@ -146,7 +146,7 @@ export default function ClaimPage() {
               type="submit"
               disabled={loading}
               className="w-full py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: 'var(--vouch-green)' }}
+              style={{ backgroundColor: 'var(--ivouch-blue)' }}
             >
               {loading ? 'Submitting...' : 'Submit Claim'}
             </button>

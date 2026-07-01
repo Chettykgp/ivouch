@@ -22,7 +22,7 @@ export default function VouchButton({ businessId, className = '', label = 'I vou
     <Link
       href={`/vouch/${businessId}`}
       onClick={() => setPopping(true)}
-      className={`btn-vouch ${className}`}
+      className={`btn-blue ${className}`}
     >
       <Heart
         size={20}

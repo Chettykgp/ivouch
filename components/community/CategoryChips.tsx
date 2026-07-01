@@ -21,12 +21,12 @@ export default function CategoryChips({ categories, communitySlug, activeSlug }:
             style={
               isActive
                 ? {
-                    backgroundColor: 'var(--vouch-green)',
+                    backgroundColor: 'var(--ivouch-blue)',
                     color: 'white',
-                    borderColor: 'var(--vouch-green)',
-                    boxShadow: '0 4px 12px rgba(32,178,107,0.3)',
+                    borderColor: 'var(--ivouch-blue)',
+                    boxShadow: 'var(--shadow-blue)',
                   }
-                : { backgroundColor: 'white', color: 'var(--charcoal)', borderColor: 'var(--cloud-grey)' }
+                : { backgroundColor: 'white', color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }
             }
           >
             {cat.icon && <span>{cat.icon}</span>}

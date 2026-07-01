@@ -129,7 +129,7 @@ export default function AddBusinessPage() {
             <Link
               href="/"
               className="px-6 py-3 rounded-xl font-bold text-white inline-block"
-              style={{ backgroundColor: 'var(--vouch-green)' }}
+              style={{ backgroundColor: 'var(--ivouch-blue)' }}
             >
               Back to Home
             </Link>
@@ -254,7 +254,7 @@ export default function AddBusinessPage() {
                     className="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
                     style={
                       selectedCommunities.includes(c.slug)
-                        ? { backgroundColor: 'var(--navy)', color: 'white', borderColor: 'var(--navy)' }
+                        ? { backgroundColor: 'var(--ivouch-blue)', color: 'white', borderColor: 'var(--ivouch-blue)' }
                         : { backgroundColor: 'white', color: 'var(--charcoal)', borderColor: 'var(--cloud-grey)' }
                     }
                   >
@@ -299,7 +299,7 @@ export default function AddBusinessPage() {
               type="submit"
               disabled={loading}
               className="w-full py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: 'var(--vouch-green)' }}
+              style={{ backgroundColor: 'var(--ivouch-blue)' }}
             >
               {loading ? 'Submitting...' : 'Submit Business'}
             </button>

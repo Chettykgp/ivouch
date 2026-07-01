@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ArrowRight } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BusinessCard from '@/components/business/BusinessCard'
@@ -27,34 +27,44 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <Header />
-      <main className="flex-1">
-        <div style={{ backgroundColor: 'var(--navy)' }} className="py-12 px-4">
-          <div className="max-w-4xl mx-auto">
+      <main className="flex-1" style={{ backgroundColor: 'var(--mist)' }}>
+        <section className="page-hero px-4 pt-10 pb-9">
+          <div className="max-w-6xl mx-auto">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-1 text-white/60 text-sm mb-3 flex-wrap">
+            <div className="flex items-center gap-1 text-sm mb-4 flex-wrap text-gray-400">
               {parent && (
                 <>
-                  <Link href={`/c/${parent.slug}`} className="hover:text-white transition-colors">
+                  <Link href={`/c/${parent.slug}`} className="hover:text-[var(--ivouch-blue)] transition-colors">
                     {parent.display_name ?? parent.name}
                   </Link>
-                  <ChevronRight size={12} className="text-white/40" />
+                  <ChevronRight size={13} />
                 </>
               )}
-              <Link href={`/c/${communitySlug}`} className="hover:text-white transition-colors">
+              <Link href={`/c/${communitySlug}`} className="hover:text-[var(--ivouch-blue)] transition-colors">
                 {community.name}
               </Link>
-              <ChevronRight size={12} className="text-white/40" />
-              <span className="text-white/80">{category.name}</span>
+              <ChevronRight size={13} />
+              <span style={{ color: 'var(--ink)' }} className="font-semibold">{category.name}</span>
             </div>
 
-            <h1 className="text-3xl font-black text-white">
-              {category.icon} {category.name}s vouched for in {community.name}
-            </h1>
-            <p className="text-white/70 mt-2">{businesses.length} businesses found</p>
+            <div className="flex items-center gap-4">
+              <span className="icon-tile w-14 h-14 text-3xl flex-shrink-0">
+                {category.icon ?? '📍'}
+              </span>
+              <div>
+                <h1 className="text-3xl font-extrabold" style={{ color: 'var(--ink)' }}>
+                  {category.name} in {community.name}
+                </h1>
+                <p className="mt-1 text-sm" style={{ color: '#5A6B85' }}>
+                  {businesses.length} {businesses.length === 1 ? 'business' : 'businesses'} your
+                  neighbours vouch for
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto px-4 py-10">
           {businesses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {businesses.map((b) => (
@@ -62,15 +72,14 @@ export default async function CategoryPage({ params }: Props) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 text-gray-500">
-              <p className="text-lg font-medium">No {category.name}s listed in {community.name} yet.</p>
-              <p className="text-sm mt-2 mb-6">Know a good one? Add them!</p>
-              <Link
-                href="/add-business"
-                className="px-6 py-3 rounded-xl font-bold text-white"
-                style={{ backgroundColor: 'var(--vouch-green)' }}
-              >
-                Add a {category.name}
+            <div className="card-soft text-center py-16 px-4 max-w-lg mx-auto">
+              <div className="text-4xl mb-3">🔎</div>
+              <p className="text-lg font-bold" style={{ color: 'var(--ink)' }}>
+                No {category.name} listed in {community.name} yet.
+              </p>
+              <p className="text-sm mt-2 mb-6 text-gray-500">Know a good one? Add them for your neighbours.</p>
+              <Link href="/add-business" className="btn-blue inline-flex px-6 py-3">
+                Add a business <ArrowRight size={16} />
               </Link>
             </div>
           )}

@@ -54,18 +54,18 @@ export default async function ProfilePage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
-        <div className="hero-navy py-12 px-4">
+      <main className="flex-1" style={{ backgroundColor: 'var(--mist)' }}>
+        <div className="page-hero py-12 px-4">
           <div className="max-w-3xl mx-auto flex items-center gap-4">
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-black ring-4 ring-white/10"
+              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-black ring-4 ring-white"
               style={{ backgroundColor: color }}
             >
               {initials(name)}
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">{name}</h1>
-              <p className="text-white/60 text-sm">
+              <h1 className="text-2xl font-extrabold" style={{ color: 'var(--ink)' }}>{name}</h1>
+              <p className="text-sm text-gray-400">
                 {homeCommunity ? `${homeCommunity} · ` : ''}
                 {user.email}
               </p>
@@ -74,7 +74,7 @@ export default async function ProfilePage() {
         </div>
 
         <div className="max-w-3xl mx-auto px-4 py-8" id="vouches">
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--charcoal)' }}>
+          <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--ink)' }}>
             My Vouches ({vouches.length})
           </h2>
 
@@ -87,9 +87,9 @@ export default async function ProfilePage() {
                   className="card-soft card-hover block p-4"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold" style={{ color: 'var(--charcoal)' }}>
+                    <span className="font-semibold" style={{ color: 'var(--ink)' }}>
                       🫶 You vouched for{' '}
-                      <span style={{ color: 'var(--vouch-green)' }}>
+                      <span style={{ color: 'var(--ivouch-blue)' }}>
                         {v.business?.name ?? 'a business'}
                       </span>
                     </span>
@@ -101,7 +101,7 @@ export default async function ProfilePage() {
                   {v.tags && v.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {v.tags.map((t) => (
-                        <span key={t} className="chip chip-green">
+                        <span key={t} className="chip chip-blue">
                           {t}
                         </span>
                       ))}
@@ -113,13 +113,13 @@ export default async function ProfilePage() {
           ) : (
             <div className="card-soft p-8 text-center">
               <div className="text-4xl mb-3">🫶</div>
-              <p className="font-semibold" style={{ color: 'var(--charcoal)' }}>
+              <p className="font-semibold" style={{ color: 'var(--ink)' }}>
                 You haven&apos;t vouched for anyone yet.
               </p>
               <p className="text-sm text-gray-500 mt-1 mb-4">
                 Know a great local business? Let your neighbours know.
               </p>
-              <Link href="/c/jhb-south-ward-23" className="btn-vouch inline-block px-6 py-2.5">
+              <Link href="/c/jhb-south-ward-23" className="btn-blue inline-flex px-6 py-2.5">
                 Browse businesses
               </Link>
             </div>

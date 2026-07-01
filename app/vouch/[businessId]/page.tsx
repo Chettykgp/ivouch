@@ -207,9 +207,9 @@ export default function VouchPage() {
                     style={
                       selectedTags.includes(tag)
                         ? {
-                            backgroundColor: 'var(--vouch-green)',
+                            backgroundColor: 'var(--ivouch-blue)',
                             color: 'white',
-                            borderColor: 'var(--vouch-green)',
+                            borderColor: 'var(--ivouch-blue)',
                           }
                         : {
                             backgroundColor: 'white',

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, CheckCircle, Heart } from 'lucide-react'
+import { MapPin, BadgeCheck, ShieldCheck, ArrowRight } from 'lucide-react'
 import type { Business } from '@/types'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 
@@ -16,50 +16,53 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   const areas = business.communities?.slice(0, 3).map((c) => c.name) ?? []
   const topTags = business.top_tags?.slice(0, 3) ?? []
   const whatsapp = business.whatsapp?.replace(/\D/g, '')
+  const hasIcon = Boolean(business.primary_category?.icon)
 
   return (
-    <div className="card-soft card-hover p-5 flex flex-col gap-3">
+    <div className="group card-soft card-hover p-5 flex flex-col gap-3.5">
       {/* Header */}
       <div className="flex items-start gap-3">
         <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-base flex-shrink-0 shadow-sm"
-          style={{ backgroundColor: color }}
+          className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+          style={
+            hasIcon
+              ? { backgroundColor: 'var(--ivouch-blue-soft)' }
+              : { backgroundColor: color, color: '#fff' }
+          }
         >
-          {business.primary_category?.icon ? (
-            <span className="text-xl">{business.primary_category.icon}</span>
+          {hasIcon ? (
+            <span className="text-2xl">{business.primary_category!.icon}</span>
           ) : (
-            initials(business.name)
+            <span className="font-black text-lg">{initials(business.name)}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <Link
-              href={`/b/${business.slug}`}
-              className="font-bold text-lg leading-tight hover:underline truncate"
-              style={{ color: 'var(--charcoal)' }}
-            >
-              {business.name}
-            </Link>
+          <Link
+            href={`/b/${business.slug}`}
+            className="flex items-center gap-1.5 font-extrabold text-lg leading-tight transition-colors group-hover:text-[var(--ivouch-blue)]"
+            style={{ color: 'var(--ink)' }}
+          >
+            <span className="truncate">{business.name}</span>
             {verified && (
-              <CheckCircle size={16} style={{ color: 'var(--vouch-green)' }} className="flex-shrink-0" />
+              <BadgeCheck size={17} className="flex-shrink-0" style={{ color: 'var(--ivouch-blue)' }} />
             )}
-          </div>
+          </Link>
           {business.primary_category && (
-            <span className="chip mt-1.5">
-              {business.primary_category.icon} {business.primary_category.name}
-            </span>
+            <span className="chip chip-blue mt-1.5">{business.primary_category.name}</span>
           )}
         </div>
       </div>
 
-      {/* Vouch count — hero trust signal */}
+      {/* Vouch count — hero trust signal (blue, matches homepage) */}
       <div
-        className="flex items-center gap-1.5 text-base font-extrabold"
-        style={{ color: 'var(--vouch-green)' }}
+        className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+        style={{ backgroundColor: 'var(--ivouch-blue-soft)' }}
       >
-        <Heart size={18} fill="currentColor" />
-        <span>{vouchCount}</span>
-        <span className="font-semibold">
+        <ShieldCheck size={18} style={{ color: 'var(--ivouch-blue)' }} />
+        <span className="text-sm" style={{ color: 'var(--ink)' }}>
+          <span className="font-extrabold" style={{ color: 'var(--ivouch-blue)' }}>
+            {vouchCount}
+          </span>{' '}
           {vouchCount === 1 ? 'neighbour vouches' : 'neighbours vouch'}
         </span>
       </div>
@@ -68,42 +71,43 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       {topTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {topTags.map((t) => (
-            <span key={t} className="chip chip-green">
-              {t}
-            </span>
+            <span key={t} className="chip">{t}</span>
           ))}
         </div>
       )}
 
       {/* Areas */}
       {areas.length > 0 && (
-        <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-gray-400">
           <MapPin size={12} /> {areas.join(' · ')}
         </div>
       )}
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2 mt-auto pt-1">
-        <Link href={`/vouch/${business.id}`} className="btn-vouch px-3.5 py-2 text-xs">
-          <Heart size={13} fill="currentColor" /> I vouch
+      <div className="flex items-center gap-2 mt-auto pt-1">
+        <Link href={`/vouch/${business.id}`} className="btn-blue px-4 py-2.5 text-sm flex-1">
+          <BadgeCheck size={15} /> I vouch
         </Link>
         {whatsapp && (
           <a
             href={`https://wa.me/${whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors hover:bg-gray-50"
-            style={{ borderColor: 'var(--cloud-grey)', color: '#128C4A' }}
+            aria-label="Message on WhatsApp"
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 transition-transform hover:-translate-y-0.5"
+            style={{ backgroundColor: '#25D366' }}
           >
-            WhatsApp
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" />
+            </svg>
           </a>
         )}
         <Link
           href={`/b/${business.slug}`}
-          className="px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors hover:bg-gray-50 ml-auto"
-          style={{ borderColor: 'var(--cloud-grey)', color: 'var(--navy)' }}
+          aria-label="View profile"
+          className="btn-outline w-10 h-10 flex-shrink-0"
         >
-          View
+          <ArrowRight size={16} />
         </Link>
       </div>
     </div>
