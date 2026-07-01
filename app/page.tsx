@@ -67,30 +67,51 @@ export default async function HomePage() {
 
         {/* ───────────────────────── HERO ───────────────────────── */}
         <section className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-4 lg:pt-16 lg:pb-10 grid lg:grid-cols-2 gap-10 items-center">
+          {/* Giant "WARD 23" community watermark — you belong here */}
+          <div aria-hidden className="pointer-events-none select-none absolute -top-6 left-0 right-0 flex justify-center overflow-hidden">
+            <span
+              className="font-black leading-none tracking-tighter whitespace-nowrap text-[26vw] lg:text-[15rem]"
+              style={{ color: 'var(--ivouch-blue)', opacity: 0.05 }}
+            >
+              WARD 23
+            </span>
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-4 lg:pt-16 lg:pb-10 grid lg:grid-cols-2 gap-10 items-center">
 
             {/* Left column */}
             <div>
-              {/* Location pill */}
-              <div className="inline-flex items-center gap-2 rounded-full pl-2 pr-4 py-1.5 mb-6 text-sm"
+              {/* Belonging badge */}
+              <div className="inline-flex items-center gap-2 rounded-full pl-2 pr-4 py-1.5 mb-5 text-sm"
                 style={{ backgroundColor: 'var(--ivouch-blue-soft)' }}>
                 <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-bold text-white text-xs"
                   style={{ backgroundColor: 'var(--ivouch-blue)' }}>
-                  <MapPin size={13} /> JHB Ward 23
+                  <MapPin size={13} /> You&apos;re in Ward 23
                 </span>
                 <span className="font-medium" style={{ color: 'var(--ink)' }}>
                   Your community. Real vouchers. Trusted people.
                 </span>
               </div>
 
+              {/* Big proud community lockup */}
+              <div className="mb-4 flex items-end gap-3">
+                <span className="font-black leading-[0.85] tracking-tight text-6xl sm:text-7xl"
+                  style={{ color: 'var(--ivouch-blue)' }}>
+                  Ward 23
+                </span>
+                <span className="text-[11px] font-bold uppercase tracking-widest leading-tight pb-2 text-gray-400">
+                  JHB<br />South
+                </span>
+              </div>
+
               {/* Headline */}
-              <h1 className="font-extrabold tracking-tight leading-[1.02] text-5xl sm:text-6xl lg:text-7xl"
+              <h1 className="font-extrabold tracking-tight leading-[1.05] text-4xl sm:text-5xl lg:text-6xl"
                 style={{ color: 'var(--ink)' }}>
-                Find people<br />your neighbours<br />
+                Find people your neighbours{' '}
                 <span style={{ color: 'var(--ivouch-blue)' }}>vouch</span> for.
               </h1>
 
-              <p className="mt-6 text-lg max-w-md" style={{ color: '#5A6B85' }}>
+              <p className="mt-5 text-lg max-w-md" style={{ color: '#5A6B85' }}>
                 iVouch connects you with trusted local businesses and service providers
                 recommended by real people in your community.
               </p>

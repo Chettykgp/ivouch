@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Heart } from 'lucide-react'
+import { Heart, ShieldCheck, BadgeCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
@@ -146,21 +146,35 @@ export default function VouchPage() {
     return (
       <>
         <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="text-center max-w-sm">
-            <div className="text-4xl mb-4">🔐</div>
-            <h1 className="text-xl font-bold mb-3" style={{ color: 'var(--charcoal)' }}>
-              Sign in to vouch
-            </h1>
-            <p className="text-gray-500 mb-6 text-sm">
-              A vouch comes from a real neighbour — sign in so yours counts.
-            </p>
-            <Link
-              href={`/auth?redirect=/vouch/${businessId}`}
-              className="btn-vouch inline-block px-6 py-3"
-            >
-              Sign In / Register
-            </Link>
+        <main className="flex-1 flex items-center justify-center px-4 py-16" style={{ backgroundColor: 'var(--mist)' }}>
+          <div className="w-full max-w-md animate-fade-up">
+            <div className="card-soft p-8 text-center">
+              <span className="icon-tile w-16 h-16 mx-auto mb-5 flex">
+                <ShieldCheck size={30} style={{ color: 'var(--ivouch-blue)' }} />
+              </span>
+              <h1 className="text-2xl font-extrabold mb-2" style={{ color: 'var(--ink)' }}>
+                Sign in to vouch
+              </h1>
+              <p className="text-gray-500 mb-6 text-sm leading-relaxed">
+                A vouch comes from a real neighbour — sign in so yours counts. It only takes
+                a moment, and it helps the whole of Ward 23 find people they can trust.
+              </p>
+              <Link
+                href={`/auth?redirect=/vouch/${businessId}`}
+                className="btn-blue w-full py-3.5 text-base mb-3"
+              >
+                <BadgeCheck size={18} /> Sign in to vouch
+              </Link>
+              <Link
+                href={`/auth?mode=signup&redirect=/vouch/${businessId}`}
+                className="btn-outline w-full py-3.5 text-base"
+              >
+                Create a free account
+              </Link>
+              <p className="text-xs text-gray-400 mt-5">
+                Real people. Real vouches. No paid reviews, ever.
+              </p>
+            </div>
           </div>
         </main>
         <Footer />
@@ -174,7 +188,7 @@ export default function VouchPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 px-4 py-10">
+      <main className="flex-1 px-4 py-10" style={{ backgroundColor: 'var(--mist)' }}>
         <div className="max-w-lg mx-auto animate-fade-up">
           <div className="text-center mb-8">
             <div
@@ -183,7 +197,7 @@ export default function VouchPage() {
             >
               {business?.primary_category?.icon ?? initials(bizName)}
             </div>
-            <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--charcoal)' }}>
+            <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--ink)' }}>
               Vouch for {bizName}
             </h1>
             <p className="text-gray-500 text-sm">
@@ -194,7 +208,7 @@ export default function VouchPage() {
           <form onSubmit={handleSubmit} className="card-soft p-6 space-y-6">
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--charcoal)' }}>
+              <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--ink)' }}>
                 What are they great at? (select all that apply)
               </label>
               <div className="flex flex-wrap gap-2">
@@ -213,7 +227,7 @@ export default function VouchPage() {
                           }
                         : {
                             backgroundColor: 'white',
-                            color: 'var(--charcoal)',
+                            color: 'var(--ink)',
                             borderColor: 'var(--cloud-grey)',
                           }
                     }
@@ -226,7 +240,7 @@ export default function VouchPage() {
 
             {/* Neighbourhood — optional / informational */}
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>
                 Which part of Ward 23 are you in?{' '}
                 <span className="font-normal text-gray-400">(optional)</span>
               </label>
@@ -247,7 +261,7 @@ export default function VouchPage() {
 
             {/* Comment */}
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>
                 Add a comment <span className="font-normal text-gray-400">(optional)</span>
               </label>
               <textarea
@@ -267,7 +281,7 @@ export default function VouchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-vouch w-full py-4 text-lg disabled:opacity-60"
+              className="btn-blue w-full py-4 text-lg disabled:opacity-60"
             >
               <Heart size={20} fill="currentColor" />
               {loading ? 'Submitting…' : 'Yes, I vouch for them'}
