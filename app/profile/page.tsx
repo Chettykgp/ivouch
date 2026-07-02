@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import { avatarColor, initials } from '@/lib/utils/avatar'
+import BusinessSearch from '@/components/business/BusinessSearch'
 
 export const dynamic = 'force-dynamic'
 
@@ -70,6 +71,19 @@ export default async function ProfilePage() {
                 {user.email}
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Vouch for a business — search */}
+        <div className="max-w-3xl mx-auto px-4 pt-8">
+          <div className="card-soft p-5">
+            <h2 className="text-lg font-extrabold mb-1" style={{ color: 'var(--ink)' }}>
+              Vouch for a business
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Search a local business you&apos;ve used and vouch for them so your neighbours know.
+            </p>
+            <BusinessSearch action="vouch" />
           </div>
         </div>
 
