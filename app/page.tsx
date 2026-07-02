@@ -86,8 +86,8 @@ export default async function HomePage() {
               {/* Headline */}
               <h1 className="font-extrabold tracking-tight leading-[1.02] text-5xl sm:text-6xl lg:text-7xl"
                 style={{ color: 'var(--ink)' }}>
-                Find people<br />your neighbours<br />
-                <span style={{ color: 'var(--ivouch-blue)' }}>vouch</span> for.
+                Find the help<br />your neighbours<br />
+                <span style={{ color: 'var(--ivouch-blue)' }}>vouched</span> for.
               </h1>
 
               <p className="mt-6 text-lg max-w-md" style={{ color: '#5A6B85' }}>
