@@ -2,16 +2,9 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, ChevronDown, MapPin, Grid3x3, HelpCircle, Info, Store } from 'lucide-react'
+import { Menu, X, ChevronDown, MapPin, Grid3x3, Store } from 'lucide-react'
 import Logo from './Logo'
 import AuthNav from './AuthNav'
-
-const NAV_LINKS = [
-  { label: 'Categories', href: '/categories', icon: Grid3x3 },
-  { label: 'How it works', href: '/#how-it-works', icon: HelpCircle },
-  { label: 'About', href: '/#about', icon: Info },
-  { label: 'For Businesses', href: '/add-business', icon: Store },
-]
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -55,12 +48,6 @@ export default function Header() {
             )}
           </div>
 
-          <Link href="/#how-it-works" className={navItem}>
-            <HelpCircle size={16} className="opacity-60 group-hover:opacity-100" /> How it works
-          </Link>
-          <Link href="/#about" className={navItem}>
-            <Info size={16} className="opacity-60 group-hover:opacity-100" /> About
-          </Link>
           <Link href="/add-business" className={navItem}>
             <Store size={16} className="opacity-60 group-hover:opacity-100" /> For Businesses
           </Link>
@@ -90,11 +77,9 @@ export default function Header() {
           <Link href="/c/jhb-south-ward-23" className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-[var(--mist)]" style={{ color: 'var(--ink)' }} onClick={() => setMobileOpen(false)}>
             <MapPin size={17} style={{ color: 'var(--ivouch-blue)' }} /> My Community · Ward 23
           </Link>
-          {NAV_LINKS.slice(1).map((l) => (
-            <Link key={l.href} href={l.href} className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-[var(--mist)]" style={{ color: 'var(--ink)' }} onClick={() => setMobileOpen(false)}>
-              <l.icon size={17} style={{ color: 'var(--ivouch-blue)' }} /> {l.label}
-            </Link>
-          ))}
+          <Link href="/add-business" className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-[var(--mist)]" style={{ color: 'var(--ink)' }} onClick={() => setMobileOpen(false)}>
+            <Store size={17} style={{ color: 'var(--ivouch-blue)' }} /> For Businesses
+          </Link>
           <div className="pt-2">
             <AuthNav variant="mobile" onNavigate={() => setMobileOpen(false)} />
           </div>

@@ -2,53 +2,39 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   MapPin, ArrowRight, ShieldCheck, Users, Store, HeartHandshake,
-  Search, BadgeCheck, Star, Sparkles,
+  BadgeCheck, Star, Sparkles,
 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ActivityFeed from '@/components/feed/ActivityFeed'
+import CategoryExplorer, { type ExplorerCategory } from '@/components/community/CategoryExplorer'
 import { getCommunityWithContext, getCommunityStats } from '@/lib/data/communities'
-import { getFeaturedCategories } from '@/lib/data/categories'
+import { getFeaturedCategories, getCategoriesGrouped } from '@/lib/data/categories'
 import { getRecentVouches } from '@/lib/data/activity'
-import type { Category, CommunityAlias } from '@/types'
+import type { Category } from '@/types'
 
 export const revalidate = 120
 
 const WARD_SLUG = 'jhb-south-ward-23'
-
-const FALLBACK_NEIGHBOURHOODS = [
-  'Glenvista', 'Bassonia', 'Mulbarton', 'Glenanda',
-  'Liefde en Vrede', 'Mayfield Park', 'Rispark', 'South View',
-]
 
 function nf(n: number): string {
   return new Intl.NumberFormat('en-ZA').format(n)
 }
 
 export default async function HomePage() {
-  // Fetch community context, stats, featured categories and the live feed.
-  let neighbourhoods: string[] = FALLBACK_NEIGHBOURHOODS
-  let businessCount = 0
   let vouchCount = 0
   let featured: Category[] = []
   let recentVouches: Awaited<ReturnType<typeof getRecentVouches>> = []
+  let categoryList: ExplorerCategory[] = []
+  let groupNames: string[] = []
 
   try {
     const ctx = await getCommunityWithContext(WARD_SLUG)
-    const suburbAliases = (ctx.aliases ?? []).filter(
-      (a: CommunityAlias) => a.alias_type === 'suburb'
-    )
-    if (suburbAliases.length > 0) {
-      neighbourhoods = suburbAliases.map((a) => a.alias_name)
-    }
     if (ctx.relatedIds.length > 0) {
       const stats = await getCommunityStats(ctx.relatedIds)
-      businessCount = stats.businessCount
       vouchCount = stats.vouchCount
     }
-  } catch {
-    /* fall back to constants */
-  }
+  } catch { /* noop */ }
 
   try {
     featured = await getFeaturedCategories(6)
@@ -58,7 +44,20 @@ export default async function HomePage() {
     recentVouches = await getRecentVouches(6)
   } catch { /* noop */ }
 
-  const tileNeighbourhoods = neighbourhoods.slice(0, 3)
+  try {
+    const grouped = await getCategoriesGrouped(true)
+    groupNames = grouped.map((g) => g.group_name)
+    categoryList = grouped.flatMap((g) =>
+      g.categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        icon: c.icon,
+        group_name: c.group_name,
+        business_count: c.business_count,
+      }))
+    )
+  } catch { /* noop */ }
 
   return (
     <>
@@ -223,57 +222,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ─────────────── YOUR COMMUNITY MATTERS ─────────────── */}
-        <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 pb-10">
-          <div className="rounded-3xl bg-white border p-6 sm:p-8 shadow-[var(--shadow-soft)]"
-            style={{ borderColor: 'var(--cloud-grey)' }}>
-            <div className="grid lg:grid-cols-[1fr_2fr] gap-6 items-center">
-              {/* Intro */}
-              <div className="flex items-start gap-4">
-                <span className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'var(--ink)' }}>
-                  <MapPin size={22} style={{ color: '#fff' }} />
-                </span>
-                <div>
-                  <h2 className="text-xl font-extrabold" style={{ color: 'var(--ink)' }}>Your community matters</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Join your neighbours and see what they&apos;re vouching for in{' '}
-                    <span style={{ color: 'var(--ivouch-blue)' }} className="font-semibold">JHB Ward 23</span>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Tiles */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {tileNeighbourhoods.map((name) => (
-                  <Link key={name} href={`/c/${WARD_SLUG}`}
-                    className="rounded-2xl border p-4 transition-transform hover:-translate-y-0.5 bg-white"
-                    style={{ borderColor: 'var(--cloud-grey)' }}>
-                    <Store size={22} style={{ color: 'var(--ink)' }} strokeWidth={1.5} />
-                    <div className="font-bold mt-3" style={{ color: 'var(--ink)' }}>{name}</div>
-                    <div className="text-xs text-gray-400">Ward 23 neighbourhood</div>
-                  </Link>
-                ))}
-                {/* Selected ward tile */}
-                <Link href={`/c/${WARD_SLUG}`}
-                  className="rounded-2xl p-4 text-white transition-transform hover:-translate-y-0.5 flex flex-col"
-                  style={{ backgroundColor: 'var(--ink)' }}>
-                  <div className="flex items-center justify-between">
-                    <Store size={22} strokeWidth={1.5} />
-                    <ArrowRight size={16} className="opacity-70" />
-                  </div>
-                  <div className="font-bold mt-3">JHB Ward 23</div>
-                  <div className="text-xs text-white/60">
-                    {businessCount > 0 ? `${nf(businessCount)} local businesses` : 'Your selected community'}
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ─────────────── WELCOME + ACTIVITY FEED (social) ─────────────── */}
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
           <div className="text-center mb-7">
             <span className="inline-flex items-center gap-1.5 chip chip-blue mb-3">
               <Sparkles size={14} /> Welcome, neighbour
@@ -292,54 +242,28 @@ export default async function HomePage() {
           />
         </section>
 
-        {/* ─────────────── FEATURED CATEGORIES ─────────────── */}
-        {featured.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-2xl font-extrabold" style={{ color: 'var(--ink)' }}>Browse by category</h2>
-              <Link href="/categories" className="text-sm font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
-                style={{ color: 'var(--ivouch-blue)' }}>
-                See all categories <ArrowRight size={15} />
-              </Link>
+        {/* ─────────────── CATEGORIES — minimal, filterable list ─────────────── */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
+            <div>
+              <h2 className="text-2xl font-extrabold" style={{ color: 'var(--ink)' }}>
+                Every service in Ward 23
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Filter by type or search to jump straight to what you need
+                {categoryList.length > 0 && <> — {categoryList.length} services</>}.
+              </p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {featured.map((c) => (
-                <Link key={c.id} href={`/c/${WARD_SLUG}/${c.slug}`}
-                  className="rounded-2xl bg-white border p-5 text-center transition-transform hover:-translate-y-1 shadow-[var(--shadow-soft)]"
-                  style={{ borderColor: 'var(--cloud-grey)' }}>
-                  <div className="text-3xl mb-2">{c.icon ?? '📍'}</div>
-                  <div className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>{c.name}</div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─────────────── HOW IT WORKS ─────────────── */}
-        <section id="how-it-works" className="bg-white border-y" style={{ borderColor: 'var(--cloud-grey)' }}>
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 text-center">
-            <h2 className="text-3xl font-extrabold mb-2" style={{ color: 'var(--ink)' }}>How iVouch works</h2>
-            <p className="text-gray-500 mb-12">Three simple steps to find someone you can trust.</p>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { icon: Search, title: 'Find your service', desc: 'Search or browse categories in JHB Ward 23 to see who your neighbours use.' },
-                { icon: HeartHandshake, title: 'Check the vouches', desc: 'A vouch means a real neighbour personally recommends them. Stronger than a star.' },
-                { icon: ShieldCheck, title: 'Hire with confidence', desc: 'Contact directly on WhatsApp. Then vouch for them too — help the next neighbour.' },
-              ].map((s, i) => (
-                <div key={s.title} className="flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--ivouch-blue-soft)' }}>
-                    <s.icon size={28} style={{ color: 'var(--ivouch-blue)' }} />
-                  </div>
-                  <div className="text-xs font-bold px-2.5 py-0.5 rounded-full text-white" style={{ backgroundColor: 'var(--ink)' }}>
-                    Step {i + 1}
-                  </div>
-                  <h3 className="font-bold text-lg" style={{ color: 'var(--ink)' }}>{s.title}</h3>
-                  <p className="text-sm text-gray-500 max-w-xs">{s.desc}</p>
-                </div>
-              ))}
-            </div>
+            <Link href="/categories"
+              className="text-sm font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
+              style={{ color: 'var(--ivouch-blue)' }}>
+              Full directory <ArrowRight size={15} />
+            </Link>
           </div>
+
+          {categoryList.length > 0 && (
+            <CategoryExplorer categories={categoryList} groups={groupNames} wardSlug={WARD_SLUG} />
+          )}
         </section>
 
         {/* ─────────────── CTA BANNER ─────────────── */}
