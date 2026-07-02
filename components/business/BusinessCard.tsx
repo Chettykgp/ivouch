@@ -13,7 +13,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   const verified =
     business.verification_status === 'verified' ||
     business.verification_status === 'phone_verified'
-  const areas = business.communities?.slice(0, 3).map((c) => c.name) ?? []
+  const areas = (business.communities ?? []).map((c) => c?.name).filter(Boolean).slice(0, 3) as string[]
   const topTags = business.top_tags?.slice(0, 3) ?? []
   const whatsapp = business.whatsapp?.replace(/\D/g, '')
   const hasIcon = Boolean(business.primary_category?.icon)

@@ -42,7 +42,7 @@ export default async function BusinessProfilePage({ params }: Props) {
   const verified =
     business.verification_status === 'verified' ||
     business.verification_status === 'phone_verified'
-  const areas = business.communities?.map((c) => c.name) ?? []
+  const areas = (business.communities ?? []).map((c) => c?.name).filter(Boolean) as string[]
 
   return (
     <>

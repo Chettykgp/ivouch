@@ -14,7 +14,10 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
     .eq('status', 'active')
     .single()
   if (error) return null
-  const communities = (data.communities as { community: unknown }[])?.map((bc) => bc.community) ?? []
+  const communities =
+    (data.communities as { community: unknown }[])
+      ?.map((bc) => bc.community)
+      .filter((c): c is object => c != null) ?? []
   return { ...data, communities } as Business
 }
 
