@@ -1,48 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { MapPin } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
 import { slugify } from '@/lib/utils/slugify'
+import { GROUP_ORDER } from '@/lib/data/category-groups'
 
-const CATEGORIES = [
-  { name: 'Plumber', slug: 'plumber' },
-  { name: 'Electrician', slug: 'electrician' },
-  { name: 'Mechanic', slug: 'mechanic' },
-  { name: 'Tutor', slug: 'tutor' },
-  { name: 'Gardener', slug: 'gardener' },
-  { name: 'Domestic Worker', slug: 'domestic-worker' },
-  { name: 'DJ', slug: 'dj' },
-  { name: 'Photographer', slug: 'photographer' },
-  { name: 'Painter', slug: 'painter' },
-  { name: 'Handyman', slug: 'handyman' },
-  { name: 'Locksmith', slug: 'locksmith' },
-  { name: 'Pest Control', slug: 'pest-control' },
-  { name: 'Pool Service', slug: 'pool-service' },
-  { name: 'Security', slug: 'security' },
-  { name: 'Tiler', slug: 'tiler' },
-  { name: 'Tree Felling', slug: 'tree-felling' },
-  { name: 'Roof Repair', slug: 'roof-repair' },
-  { name: 'Catering', slug: 'catering' },
-  { name: 'Driving Instructor', slug: 'driving-instructor' },
-  { name: 'Alterations & Tailoring', slug: 'alterations' },
+const WARD_SLUG = 'jhb-south-ward-23'
+
+const FALLBACK_NEIGHBOURHOODS = [
+  'Glenvista', 'Bassonia', 'Mulbarton', 'Glenanda',
+  'Liefde en Vrede', 'Mayfield Park', 'Rispark', 'South View',
 ]
 
-const COMMUNITIES = [
-  { name: 'Glenvista', slug: 'glenvista' },
-  { name: 'Bassonia', slug: 'bassonia' },
-  { name: 'Mondeor', slug: 'mondeor' },
-  { name: 'Mulbarton', slug: 'mulbarton' },
-  { name: 'Lenasia', slug: 'lenasia' },
-  { name: 'Alberton', slug: 'alberton' },
-]
+interface CatRow {
+  id: string
+  name: string
+  slug: string
+  group_name: string | null
+  sort_order: number | null
+}
 
 export default function AddBusinessPage() {
+  const supabase = useMemo(() => createClient(), [])
+
+  const [categories, setCategories] = useState<CatRow[]>([])
+  const [neighbourhoods, setNeighbourhoods] = useState<string[]>(FALLBACK_NEIGHBOURHOODS)
+  const [wardId, setWardId] = useState<string | null>(null)
+
   const [form, setForm] = useState({
     name: '',
-    category: '',
+    categoryId: '',
     description: '',
     phone: '',
     whatsapp: '',
@@ -50,17 +41,59 @@ export default function AddBusinessPage() {
     address_text: '',
     isOwner: false,
   })
-  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([])
+  const [serves, setServes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const supabase = createClient()
+  // Load live categories + Ward 23 context.
+  useEffect(() => {
+    async function load() {
+      const [{ data: cats }, { data: ward }] = await Promise.all([
+        supabase
+          .from('categories')
+          .select('id,name,slug,group_name,sort_order')
+          .eq('status', 'active'),
+        supabase.from('communities').select('id').eq('slug', WARD_SLUG).maybeSingle(),
+      ])
+      if (cats) setCategories(cats as CatRow[])
+      if (ward?.id) {
+        setWardId(ward.id)
+        const { data: aliases } = await supabase
+          .from('community_aliases')
+          .select('alias_name, alias_type')
+          .eq('community_id', ward.id)
+          .eq('alias_type', 'suburb')
+        if (aliases && aliases.length > 0) {
+          setNeighbourhoods(aliases.map((a) => a.alias_name as string))
+        }
+      }
+    }
+    load()
+  }, [supabase])
 
-  function toggleCommunity(slug: string) {
-    setSelectedCommunities((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
-    )
+  // Group categories for the <select> optgroups.
+  const grouped = useMemo(() => {
+    const byGroup = new Map<string, CatRow[]>()
+    for (const c of categories) {
+      const g = c.group_name ?? 'Other Services'
+      if (!byGroup.has(g)) byGroup.set(g, [])
+      byGroup.get(g)!.push(c)
+    }
+    const order = [
+      ...GROUP_ORDER.filter((g) => byGroup.has(g)),
+      ...[...byGroup.keys()].filter((g) => !GROUP_ORDER.includes(g as never)),
+    ]
+    return order.map((name) => ({
+      name,
+      items: byGroup
+        .get(name)!
+        .sort((a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999) || a.name.localeCompare(b.name)),
+    }))
+  }, [categories])
+
+  function toggleServe(name: string) {
+    setServes((prev) => (prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -70,28 +103,36 @@ export default function AddBusinessPage() {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Resolve category ID
-    let categoryId: string | null = null
-    if (form.category) {
-      const { data: cat } = await supabase.from('categories').select('id').eq('slug', form.category).single()
-      categoryId = cat?.id ?? null
-    }
-
     const slug = slugify(form.name) + '-' + Math.random().toString(36).slice(2, 6)
 
-    const { data: business, error: bErr } = await supabase.from('businesses').insert({
-      name: form.name,
-      slug,
-      description: form.description || null,
-      primary_category_id: categoryId,
-      phone: form.phone || null,
-      whatsapp: form.whatsapp || null,
-      website: form.website || null,
-      address_text: form.address_text || null,
-      status: 'pending',
-      is_community_sourced: true,
-      created_by_user_id: user ? (await supabase.from('profiles').select('id').eq('auth_user_id', user.id).single()).data?.id : null,
-    }).select().single()
+    // Fold "serves" neighbourhoods into the address line so the info is kept.
+    let address = form.address_text.trim()
+    if (serves.length > 0) {
+      const servesNote = `Serves: ${serves.join(', ')}`
+      address = address ? `${address} · ${servesNote}` : servesNote
+    }
+
+    const createdBy = user
+      ? (await supabase.from('profiles').select('id').eq('auth_user_id', user.id).maybeSingle()).data?.id ?? null
+      : null
+
+    const { data: business, error: bErr } = await supabase
+      .from('businesses')
+      .insert({
+        name: form.name,
+        slug,
+        description: form.description || null,
+        primary_category_id: form.categoryId || null,
+        phone: form.phone || null,
+        whatsapp: form.whatsapp || null,
+        website: form.website || null,
+        address_text: address || null,
+        status: 'pending',
+        is_community_sourced: true,
+        created_by_user_id: createdBy,
+      })
+      .select()
+      .single()
 
     if (bErr) {
       setError(bErr.message)
@@ -99,38 +140,38 @@ export default function AddBusinessPage() {
       return
     }
 
-    // Link communities
-    if (selectedCommunities.length > 0 && business) {
-      const { data: comms } = await supabase.from('communities').select('id, slug').in('slug', selectedCommunities)
-      if (comms) {
-        await supabase.from('business_communities').insert(
-          comms.map((c) => ({ business_id: business.id, community_id: c.id }))
-        )
-      }
+    // Always attach to the JHB Ward 23 community.
+    if (business && wardId) {
+      await supabase.from('business_communities').insert({
+        business_id: business.id,
+        community_id: wardId,
+      })
     }
 
     setSubmitted(true)
     setLoading(false)
   }
 
+  const inputClass = 'w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus-ring'
+  const inputStyle = { borderColor: 'var(--cloud-grey)' as const }
+  const labelClass = 'block text-sm font-semibold mb-1.5'
+  const labelStyle = { color: 'var(--ink)' as const }
+
   if (submitted) {
     return (
       <>
         <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="max-w-md text-center">
+        <main className="flex-1 flex items-center justify-center px-4 py-16" style={{ backgroundColor: 'var(--mist)' }}>
+          <div className="max-w-md text-center card-soft p-8">
             <div className="text-5xl mb-4">🎉</div>
-            <h1 className="text-2xl font-black mb-3" style={{ color: 'var(--charcoal)' }}>
+            <h1 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--ink)' }}>
               Business submitted!
             </h1>
             <p className="text-gray-500 mb-6">
-              Your listing is pending review. We&apos;ll publish it within 24 hours once approved.
+              Thanks for growing Ward 23. Your listing is pending review and will be published
+              once approved.
             </p>
-            <Link
-              href="/"
-              className="px-6 py-3 rounded-xl font-bold text-white inline-block"
-              style={{ backgroundColor: 'var(--ivouch-blue)' }}
-            >
+            <Link href="/" className="btn-blue inline-flex px-6 py-3">
               Back to Home
             </Link>
           </div>
@@ -143,165 +184,116 @@ export default function AddBusinessPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 px-4 py-10">
+      <main className="flex-1 px-4 py-10" style={{ backgroundColor: 'var(--mist)' }}>
         <div className="max-w-xl mx-auto">
-          <h1 className="text-3xl font-black mb-2" style={{ color: 'var(--charcoal)' }}>
+          <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 mb-4 text-sm font-semibold"
+            style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+            <MapPin size={14} /> JHB Ward 23
+          </div>
+          <h1 className="text-3xl font-extrabold mb-2" style={{ color: 'var(--ink)' }}>
             Add a Business
           </h1>
-          <p className="text-gray-500 mb-8">List a local business for free. All submissions are reviewed before publishing.</p>
+          <p className="text-gray-500 mb-8">
+            List a local business for free. Every submission is reviewed before it goes live —
+            and businesses don&apos;t buy trust here, they earn it.
+          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="card-soft p-6 space-y-5">
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Business Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={form.name}
+              <label className={labelClass} style={labelStyle}>Business Name *</label>
+              <input type="text" required value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Mike's Plumbing"
-                className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                style={{ borderColor: 'var(--cloud-grey)' }}
-              />
+                placeholder="e.g. Mike's Plumbing" className={inputClass} style={inputStyle} />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Category *
-              </label>
-              <select
-                required
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                style={{ borderColor: 'var(--cloud-grey)' }}
-              >
-                <option value="">Select a category...</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>{c.name}</option>
+              <label className={labelClass} style={labelStyle}>Category *</label>
+              <select required value={form.categoryId}
+                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                className={inputClass} style={inputStyle}>
+                <option value="">
+                  {categories.length ? 'Select a category…' : 'Loading categories…'}
+                </option>
+                {grouped.map((g) => (
+                  <optgroup key={g.name} label={g.name}>
+                    {g.items.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Description
-              </label>
-              <textarea
-                value={form.description}
+              <label className={labelClass} style={labelStyle}>Description</label>
+              <textarea value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                placeholder="Brief description of services offered..."
-                className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none"
-                style={{ borderColor: 'var(--cloud-grey)' }}
-              />
+                rows={3} placeholder="Brief description of services offered…"
+                className={`${inputClass} resize-none`} style={inputStyle} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  value={form.phone}
+                <label className={labelClass} style={labelStyle}>Phone</label>
+                <input type="tel" value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="+27 11 xxx xxxx"
-                  className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                  style={{ borderColor: 'var(--cloud-grey)' }}
-                />
+                  placeholder="011 xxx xxxx" className={inputClass} style={inputStyle} />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                  WhatsApp
-                </label>
-                <input
-                  type="tel"
-                  value={form.whatsapp}
+                <label className={labelClass} style={labelStyle}>WhatsApp</label>
+                <input type="tel" value={form.whatsapp}
                   onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                  placeholder="+27 82 xxx xxxx"
-                  className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                  style={{ borderColor: 'var(--cloud-grey)' }}
-                />
+                  placeholder="082 xxx xxxx" className={inputClass} style={inputStyle} />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Website (optional)
-              </label>
-              <input
-                type="url"
-                value={form.website}
+              <label className={labelClass} style={labelStyle}>Website (optional)</label>
+              <input type="url" value={form.website}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
-                placeholder="https://..."
-                className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                style={{ borderColor: 'var(--cloud-grey)' }}
-              />
+                placeholder="https://…" className={inputClass} style={inputStyle} />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Areas Served *
+              <label className={labelClass} style={labelStyle}>
+                Neighbourhoods served <span className="font-normal text-gray-400">(optional)</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {COMMUNITIES.map((c) => (
-                  <button
-                    key={c.slug}
-                    type="button"
-                    onClick={() => toggleCommunity(c.slug)}
+                {neighbourhoods.map((n) => (
+                  <button key={n} type="button" onClick={() => toggleServe(n)}
                     className="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
                     style={
-                      selectedCommunities.includes(c.slug)
+                      serves.includes(n)
                         ? { backgroundColor: 'var(--ivouch-blue)', color: 'white', borderColor: 'var(--ivouch-blue)' }
-                        : { backgroundColor: 'white', color: 'var(--charcoal)', borderColor: 'var(--cloud-grey)' }
-                    }
-                  >
-                    {c.name}
+                        : { backgroundColor: 'white', color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }
+                    }>
+                    {n}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
-                Address (optional)
-              </label>
-              <input
-                type="text"
-                value={form.address_text}
+              <label className={labelClass} style={labelStyle}>Address (optional)</label>
+              <input type="text" value={form.address_text}
                 onChange={(e) => setForm({ ...form, address_text: e.target.value })}
-                placeholder="Street address or area"
-                className="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none"
-                style={{ borderColor: 'var(--cloud-grey)' }}
-              />
+                placeholder="Street address or area" className={inputClass} style={inputStyle} />
             </div>
 
             <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="isOwner"
-                checked={form.isOwner}
-                onChange={(e) => setForm({ ...form, isOwner: e.target.checked })}
-                className="mt-1"
-              />
+              <input type="checkbox" id="isOwner" checked={form.isOwner}
+                onChange={(e) => setForm({ ...form, isOwner: e.target.checked })} className="mt-1" />
               <label htmlFor="isOwner" className="text-sm text-gray-600">
                 I am the owner or representative of this business and want to claim it
               </label>
             </div>
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-xl">{error}</div>
+              <div className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">{error}</div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: 'var(--ivouch-blue)' }}
-            >
-              {loading ? 'Submitting...' : 'Submit Business'}
+            <button type="submit" disabled={loading} className="btn-blue w-full py-3.5 disabled:opacity-60">
+              {loading ? 'Submitting…' : 'Submit Business'}
             </button>
           </form>
         </div>
