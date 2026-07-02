@@ -87,10 +87,8 @@ export default function CategoryExplorer({ categories, groups, wardSlug }: Categ
                 style={{ color: 'var(--ink)' }}
               >
                 {c.name}
+                <span className="text-gray-400 font-normal"> ({c.business_count ?? 0})</span>
               </span>
-              {typeof c.business_count === 'number' && c.business_count > 0 && (
-                <span className="text-xs text-gray-400 tabular-nums">{c.business_count}</span>
-              )}
               <ArrowRight
                 size={14}
                 className="text-gray-300 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0"
