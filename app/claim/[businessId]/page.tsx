@@ -33,21 +33,12 @@ export default function ClaimPage() {
     setLoading(true)
     setError(null)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    let profileId: string | null = null
-    if (user) {
-      const { data: p } = await supabase.from('profiles').select('id').eq('auth_user_id', user.id).single()
-      profileId = p?.id ?? null
-    }
-
-    const { error: cErr } = await supabase.from('claims').insert({
-      business_id: businessId,
-      claimant_user_id: profileId,
-      claimant_name: form.claimant_name,
-      claimant_email: form.claimant_email,
-      claimant_phone: form.claimant_phone,
-      evidence_text: form.evidence_text || null,
-      status: 'pending',
+    const { error: cErr } = await supabase.rpc('submit_claim', {
+      p_business_id: businessId,
+      p_name: form.claimant_name,
+      p_email: form.claimant_email,
+      p_phone: form.claimant_phone,
+      p_evidence: form.evidence_text,
     })
 
     if (cErr) {
@@ -62,10 +53,10 @@ export default function ClaimPage() {
     return (
       <>
         <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <main className="flex-1 flex items-center justify-center px-4 py-16" style={{ backgroundColor: "var(--mist)" }}>
           <div className="text-center max-w-sm">
             <div className="text-4xl mb-4">✅</div>
-            <h1 className="text-2xl font-black mb-2" style={{ color: 'var(--charcoal)' }}>Claim submitted!</h1>
+            <h1 className="text-2xl font-black mb-2" style={{ color: 'var(--ink)' }}>Claim submitted!</h1>
             <p className="text-gray-500 mb-6 text-sm">We&apos;ll review your claim and be in touch within 2–3 business days.</p>
             <Link href="/" className="px-6 py-3 rounded-xl font-bold text-white inline-block" style={{ backgroundColor: 'var(--ivouch-blue)' }}>
               Back to Home
@@ -80,9 +71,9 @@ export default function ClaimPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 px-4 py-10">
+      <main className="flex-1 px-4 py-10" style={{ backgroundColor: "var(--mist)" }}>
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--charcoal)' }}>
+          <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--ink)' }}>
             Claim {business?.name ?? 'this business'}
           </h1>
           <p className="text-gray-500 text-sm mb-8">
@@ -91,7 +82,7 @@ export default function ClaimPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>Full Name *</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>Full Name *</label>
               <input
                 required
                 type="text"
@@ -103,7 +94,7 @@ export default function ClaimPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>Email *</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>Email *</label>
               <input
                 required
                 type="email"
@@ -115,7 +106,7 @@ export default function ClaimPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>Phone *</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>Phone *</label>
               <input
                 required
                 type="tel"
@@ -127,7 +118,7 @@ export default function ClaimPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--charcoal)' }}>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--ink)' }}>
                 How can you prove you own / represent this business?
               </label>
               <textarea

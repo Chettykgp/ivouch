@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { Phone, Globe, MapPin, BadgeCheck, AlertCircle, ShieldCheck } from 'lucide-react'
+import { Phone, Globe, MapPin, BadgeCheck, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import WhatsAppShare from '@/components/business/WhatsAppShare'
 import VouchButton from '@/components/business/VouchButton'
 import VouchSuccessToast from '@/components/business/VouchSuccessToast'
+import ReportButton from '@/components/business/ReportButton'
 import { getBusinessBySlug } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
 import { avatarColor, initials } from '@/lib/utils/avatar'
@@ -237,9 +238,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                 <Link href={`/claim/${business.id}`} className="hover:text-gray-600">Claim this business</Link>
               )}
               <span>·</span>
-              <Link href="/guidelines" className="hover:text-red-500 inline-flex items-center gap-1">
-                <AlertCircle size={12} /> Report
-              </Link>
+              <ReportButton targetType="business" targetId={business.id} />
             </div>
           </div>
         </div>

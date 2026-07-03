@@ -29,7 +29,6 @@ export default function AddBusinessPage() {
 
   const [categories, setCategories] = useState<CatRow[]>([])
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>(FALLBACK_NEIGHBOURHOODS)
-  const [wardId, setWardId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -58,7 +57,6 @@ export default function AddBusinessPage() {
       ])
       if (cats) setCategories(cats as CatRow[])
       if (ward?.id) {
-        setWardId(ward.id)
         const { data: aliases } = await supabase
           .from('community_aliases')
           .select('alias_name, alias_type')
@@ -101,8 +99,6 @@ export default function AddBusinessPage() {
     setLoading(true)
     setError(null)
 
-    const { data: { user } } = await supabase.auth.getUser()
-
     const slug = slugify(form.name) + '-' + Math.random().toString(36).slice(2, 6)
 
     // Fold "serves" neighbourhoods into the address line so the info is kept.
@@ -112,40 +108,22 @@ export default function AddBusinessPage() {
       address = address ? `${address} · ${servesNote}` : servesNote
     }
 
-    const createdBy = user
-      ? (await supabase.from('profiles').select('id').eq('auth_user_id', user.id).maybeSingle()).data?.id ?? null
-      : null
+    // Submit via SECURITY DEFINER RPC (creates pending listing + links Ward 23).
+    const { error: rpcErr } = await supabase.rpc('submit_business', {
+      p_name: form.name,
+      p_slug: slug,
+      p_description: form.description,
+      p_category_id: form.categoryId || null,
+      p_phone: form.phone,
+      p_whatsapp: form.whatsapp,
+      p_website: form.website,
+      p_address: address,
+    })
 
-    const { data: business, error: bErr } = await supabase
-      .from('businesses')
-      .insert({
-        name: form.name,
-        slug,
-        description: form.description || null,
-        primary_category_id: form.categoryId || null,
-        phone: form.phone || null,
-        whatsapp: form.whatsapp || null,
-        website: form.website || null,
-        address_text: address || null,
-        status: 'pending',
-        is_community_sourced: true,
-        created_by_user_id: createdBy,
-      })
-      .select()
-      .single()
-
-    if (bErr) {
-      setError(bErr.message)
+    if (rpcErr) {
+      setError(rpcErr.message)
       setLoading(false)
       return
-    }
-
-    // Always attach to the JHB Ward 23 community.
-    if (business && wardId) {
-      await supabase.from('business_communities').insert({
-        business_id: business.id,
-        community_id: wardId,
-      })
     }
 
     setSubmitted(true)
