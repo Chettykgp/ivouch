@@ -43,8 +43,27 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-6 text-xs text-center text-white/40">
-          © {new Date().getFullYear()} iVouch · South Africa · Powered by community trust
+        {/* Maker's mark */}
+        <div className="border-t border-white/10 mt-10 pt-8 flex flex-col items-center gap-3">
+          <a
+            href="https://kaidesigns.co.za"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex flex-wrap justify-center items-center gap-x-1.5 gap-y-1 rounded-2xl px-5 py-2.5 text-sm font-semibold transition-colors text-center"
+            style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.9)' }}
+          >
+            <span>Built by</span>
+            <span className="font-extrabold group-hover:underline" style={{ color: 'var(--ivouch-blue)' }}>
+              Kai&nbsp;Designs
+            </span>
+            <span className="inline-flex items-center gap-1">
+              with <span aria-hidden style={{ color: 'var(--coral)' }}>❤</span> for the
+            </span>
+            <span className="font-bold text-white">Ward&nbsp;23 community</span>
+          </a>
+          <p className="text-xs text-white/40">
+            © {new Date().getFullYear()} iVouch · South Africa · Powered by community trust
+          </p>
         </div>
       </div>
     </footer>
