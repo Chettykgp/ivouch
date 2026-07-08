@@ -150,6 +150,7 @@ export default function AuthNav({ variant = 'desktop', onNavigate }: AuthNavProp
         className="flex items-center gap-2 group"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label="Account menu"
       >
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold ring-2 ring-[var(--cloud-grey)]"

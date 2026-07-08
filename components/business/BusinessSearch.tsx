@@ -60,6 +60,7 @@ export default function BusinessSearch({
       <div className="relative">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
+            aria-label="Search a business"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}

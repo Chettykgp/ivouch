@@ -42,6 +42,7 @@ export default function CategoryExplorer({ categories, groups, wardSlug }: Categ
         <div className="relative max-w-sm">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
+            aria-label="Search a service"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search a service…"
