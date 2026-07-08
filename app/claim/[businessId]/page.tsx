@@ -44,6 +44,11 @@ export default function ClaimPage() {
     if (cErr) {
       setError(cErr.message)
     } else {
+      fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'new_claim', name: business?.name ?? 'a business' }),
+      }).catch(() => {})
       setSubmitted(true)
     }
     setLoading(false)

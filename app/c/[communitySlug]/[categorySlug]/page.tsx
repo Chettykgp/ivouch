@@ -12,6 +12,20 @@ interface Props {
   params: Promise<{ communitySlug: string; categorySlug: string }>
 }
 
+export async function generateMetadata({ params }: Props) {
+  const { communitySlug, categorySlug } = await params
+  const category = await getCategoryBySlug(categorySlug)
+  if (!category) return { title: 'Category not found' }
+  const title = `${category.name} in JHB Ward 23 — vouched for by neighbours`
+  const description = `Find trusted ${category.name.toLowerCase()} services in Glenvista, Bassonia, Mulbarton and JHB South Ward 23 — personally vouched for by your neighbours. No paid reviews.`
+  return {
+    title,
+    description,
+    alternates: { canonical: `/c/${communitySlug}/${categorySlug}` },
+    openGraph: { title, description },
+  }
+}
+
 export default async function CategoryPage({ params }: Props) {
   const { communitySlug, categorySlug } = await params
   const [ctx, category] = await Promise.all([

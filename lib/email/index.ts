@@ -1,37 +1,131 @@
-// Email abstraction - Brevo-ready stub
-// To integrate Brevo: npm install @getbrevo/brevo
-// and set BREVO_API_KEY in your environment
+/**
+ * iVouch transactional email service — Brevo (Sendinblue) HTTP API.
+ *
+ * Works with zero SDK dependencies via the Brevo REST API.
+ * Configure with env vars:
+ *   BREVO_API_KEY     — required to actually send (no-op + log without it)
+ *   EMAIL_FROM        — sender address   (default: hello@ivouch.co.za)
+ *   EMAIL_FROM_NAME   — sender name      (default: iVouch)
+ *   ADMIN_EMAIL       — where admin notifications go
+ */
 
 export interface EmailOptions {
   to: string
   subject: string
   html: string
   from?: string
+  fromName?: string
 }
 
-export async function sendEmail(options: EmailOptions): Promise<void> {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Email stub]', options)
-    return
+const BRAND = {
+  blue: '#2F6BFF',
+  ink: '#0B1F4E',
+  mist: '#F5F7FD',
+}
+
+/** Shared branded wrapper so every mail looks like iVouch. */
+export function renderTemplate(title: string, bodyHtml: string): string {
+  return `<!doctype html>
+<html><body style="margin:0;padding:0;background:${BRAND.mist};font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;padding-bottom:20px;">
+      <span style="font-size:26px;font-weight:800;color:${BRAND.ink};">i<span style="color:${BRAND.blue};">Vouch</span></span>
+      <div style="font-size:12px;color:#8a94a6;margin-top:2px;">JHB South · Ward 23</div>
+    </div>
+    <div style="background:#ffffff;border-radius:16px;padding:28px;border:1px solid #E8EEF2;">
+      <h1 style="font-size:20px;color:${BRAND.ink};margin:0 0 14px;">${title}</h1>
+      <div style="font-size:14px;line-height:1.6;color:#3d4a5c;">${bodyHtml}</div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#9aa4b2;padding-top:20px;">
+      Real people. Real vouches. No paid reviews, ever.<br/>
+      © iVouch · South Africa · <a href="https://ivouch.co.za" style="color:${BRAND.blue};">ivouch.co.za</a>
+    </div>
+  </div>
+</body></html>`
+}
+
+export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  const apiKey = process.env.BREVO_API_KEY
+  if (!apiKey) {
+    console.log('[email:noop — set BREVO_API_KEY to send]', options.to, '·', options.subject)
+    return false
   }
-  // TODO: integrate Brevo SDK
-  // const brevo = new Brevo.TransactionalEmailsApi()
-  // brevo.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY!)
-  // await brevo.sendTransacEmail({ ... })
-}
-
-export function vouchConfirmationEmail(displayName: string, businessName: string): EmailOptions {
-  return {
-    to: '',
-    subject: `You vouched for ${businessName} on iVouch`,
-    html: `<p>Hi ${displayName},</p><p>Thanks for vouching for <strong>${businessName}</strong>. Your community appreciates it!</p><p>— The iVouch team</p>`,
+  try {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        sender: {
+          email: options.from ?? process.env.EMAIL_FROM ?? 'hello@ivouch.co.za',
+          name: options.fromName ?? process.env.EMAIL_FROM_NAME ?? 'iVouch',
+        },
+        to: [{ email: options.to }],
+        subject: options.subject,
+        htmlContent: options.html,
+      }),
+    })
+    if (!res.ok) {
+      console.error('[email:error]', res.status, await res.text())
+      return false
+    }
+    return true
+  } catch (err) {
+    console.error('[email:error]', err)
+    return false
   }
 }
 
-export function claimSubmittedEmail(businessName: string, adminEmail: string): EmailOptions {
+/* ────────────────────────── Templates ────────────────────────── */
+
+export function businessApprovedEmail(to: string, businessName: string, slug: string): EmailOptions {
   return {
-    to: adminEmail,
-    subject: `New claim submitted for ${businessName}`,
-    html: `<p>A new business claim has been submitted for <strong>${businessName}</strong>. Please review it in the admin panel.</p>`,
+    to,
+    subject: `🎉 ${businessName} is now live on iVouch`,
+    html: renderTemplate(
+      `${businessName} is live!`,
+      `<p>Great news — your listing has been approved and is now visible to the whole Ward 23 community.</p>
+       <p><a href="https://ivouch.co.za/b/${slug}" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">View your listing</a></p>
+       <p>Happy customers can now vouch for you. Share your link on WhatsApp and ask them to!</p>`
+    ),
+  }
+}
+
+export function newBusinessAdminEmail(to: string, businessName: string): EmailOptions {
+  return {
+    to,
+    subject: `New listing to review: ${businessName}`,
+    html: renderTemplate(
+      'New business submitted',
+      `<p><strong>${businessName}</strong> was just submitted and is waiting for review.</p>
+       <p><a href="https://ivouch.co.za/admin/businesses?status=pending" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">Review in admin</a></p>`
+    ),
+  }
+}
+
+export function newClaimAdminEmail(to: string, businessName: string, claimantName: string): EmailOptions {
+  return {
+    to,
+    subject: `New ownership claim: ${businessName}`,
+    html: renderTemplate(
+      'New claim submitted',
+      `<p><strong>${claimantName}</strong> claims to own <strong>${businessName}</strong>.</p>
+       <p><a href="https://ivouch.co.za/admin/claims" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">Review claims</a></p>`
+    ),
+  }
+}
+
+export function newReportAdminEmail(to: string, reason: string): EmailOptions {
+  return {
+    to,
+    subject: `⚠️ New report needs review`,
+    html: renderTemplate(
+      'New report',
+      `<p>A community member reported content: <strong>${reason}</strong></p>
+       <p><a href="https://ivouch.co.za/admin" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">Open admin</a></p>`
+    ),
   }
 }

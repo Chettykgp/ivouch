@@ -38,7 +38,14 @@ export default function ReportButton({ targetType, targetId }: ReportButtonProps
     })
     setLoading(false)
     if (err) setError(err.message)
-    else setDone(true)
+    else {
+      fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: 'new_report', reason }),
+      }).catch(() => {})
+      setDone(true)
+    }
   }
 
   return (

@@ -17,6 +17,22 @@ interface Props {
   params: Promise<{ businessSlug: string }>
 }
 
+export async function generateMetadata({ params }: Props) {
+  const { businessSlug } = await params
+  const business = await getBusinessBySlug(businessSlug)
+  if (!business) return { title: 'Business not found' }
+  const vouchCount = await getVouchCount(business.id)
+  const cat = business.primary_category?.name
+  const title = `${business.name}${cat ? ` — ${cat}` : ''} in JHB Ward 23`
+  const description = `${vouchCount} neighbour${vouchCount === 1 ? '' : 's'} vouch for ${business.name}${cat ? `, a trusted ${cat.toLowerCase()} serving JHB South Ward 23` : ''}. ${business.description ?? ''}`.slice(0, 160)
+  return {
+    title,
+    description,
+    alternates: { canonical: `/b/${business.slug}` },
+    openGraph: { title, description, url: `/b/${business.slug}` },
+  }
+}
+
 export default async function BusinessProfilePage({ params }: Props) {
   const { businessSlug } = await params
   const business = await getBusinessBySlug(businessSlug)
@@ -26,6 +42,31 @@ export default async function BusinessProfilePage({ params }: Props) {
     getVouchesByBusiness(business.id, 20),
     getVouchCount(business.id),
   ])
+
+  // JSON-LD structured data for local search
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: business.name,
+    description: business.description ?? undefined,
+    telephone: business.phone ?? undefined,
+    url: `https://ivouch.co.za/b/${business.slug}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Johannesburg South',
+      addressRegion: 'Gauteng',
+      addressCountry: 'ZA',
+    },
+    aggregateRating:
+      vouchCount > 0
+        ? {
+            '@type': 'AggregateRating',
+            ratingValue: 5,
+            reviewCount: vouchCount,
+            bestRating: 5,
+          }
+        : undefined,
+  }
 
   // Aggregate tags -> "Known for" strip.
   const tagCounts: Record<string, number> = {}
@@ -47,6 +88,10 @@ export default async function BusinessProfilePage({ params }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <Suspense fallback={null}>
         <VouchSuccessToast />

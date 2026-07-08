@@ -5,7 +5,18 @@ async function updateBusinessStatus(id: string, status: string) {
   'use server'
   const { createClient: createSC } = await import('@/lib/supabase/server')
   const supabase = await createSC()
-  await supabase.from('businesses').update({ status }).eq('id', id)
+  const { data: biz } = await supabase
+    .from('businesses')
+    .update({ status })
+    .eq('id', id)
+    .select('name, slug, email')
+    .single()
+
+  // Congratulate the owner when their listing goes live (if we have an email).
+  if (status === 'active' && biz?.email) {
+    const { sendEmail, businessApprovedEmail } = await import('@/lib/email')
+    await sendEmail(businessApprovedEmail(biz.email, biz.name, biz.slug))
+  }
 }
 
 export default async function AdminBusinessesPage({

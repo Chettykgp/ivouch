@@ -17,6 +17,19 @@ interface Props {
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata({ params }: Props) {
+  const { communitySlug } = await params
+  const title = 'JHB South Ward 23 — your community on iVouch'
+  const description =
+    'One community, eight neighbourhoods: Glenvista, Bassonia, Mulbarton, Glenanda, Liefde en Vrede, Mayfield Park, Rispark and South View. Find the help your neighbours vouched for.'
+  return {
+    title,
+    description,
+    alternates: { canonical: `/c/${communitySlug}` },
+    openGraph: { title, description },
+  }
+}
+
 export default async function CommunityPage({ params }: Props) {
   const { communitySlug } = await params
   const [ctx, categories] = await Promise.all([

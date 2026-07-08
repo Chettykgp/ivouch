@@ -126,6 +126,13 @@ export default function AddBusinessPage() {
       return
     }
 
+    // Fire-and-forget admin notification
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: 'new_business', name: form.name }),
+    }).catch(() => {})
+
     setSubmitted(true)
     setLoading(false)
   }

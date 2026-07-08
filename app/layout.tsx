@@ -14,9 +14,37 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'iVouch – Find people your neighbours vouch for',
-  description: 'South Africa\'s trusted local recommendation platform. Find verified plumbers, electricians, mechanics and more vouched for by your community.',
-  keywords: 'local services, recommendations, community, South Africa, plumber, electrician, Johannesburg',
+  metadataBase: new URL('https://ivouch.co.za'),
+  title: {
+    default: 'iVouch – Find the help your neighbours vouched for',
+    template: '%s · iVouch',
+  },
+  description:
+    "South Africa's trusted community recommendation platform for JHB South Ward 23. Find plumbers, electricians, tutors, bakers and more — vouched for by real neighbours in Glenvista, Bassonia, Mulbarton and surrounds. No paid reviews, ever.",
+  keywords: [
+    'local services', 'recommendations', 'community', 'South Africa',
+    'plumber Glenvista', 'electrician Bassonia', 'Ward 23', 'Johannesburg South',
+    'trusted local businesses', 'neighbourhood recommendations',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    locale: 'en_ZA',
+    url: 'https://ivouch.co.za',
+    siteName: 'iVouch',
+    title: 'iVouch – Find the help your neighbours vouched for',
+    description:
+      'Trusted local businesses in JHB South Ward 23, vouched for by real neighbours. No paid reviews, ever.',
+    images: [{ url: '/hero-family.jpg', width: 1100, height: 733, alt: 'iVouch — your community, vouched for' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'iVouch – Find the help your neighbours vouched for',
+    description: 'Trusted local businesses in JHB South Ward 23, vouched for by real neighbours.',
+    images: ['/hero-family.jpg'],
+  },
+  robots: { index: true, follow: true },
+  manifest: '/manifest.webmanifest',
 }
 
 export default function RootLayout({
