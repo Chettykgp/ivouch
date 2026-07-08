@@ -129,3 +129,15 @@ export function newReportAdminEmail(to: string, reason: string): EmailOptions {
     ),
   }
 }
+
+export function newConcernAdminEmail(to: string, businessName: string): EmailOptions {
+  return {
+    to,
+    subject: `⚠️ New community concern: ${businessName}`,
+    html: renderTemplate(
+      'New concern raised',
+      `<p>A neighbour raised a concern about <strong>${businessName}</strong>. Review it and decide whether to verify, resolve or dismiss.</p>
+       <p><a href="https://ivouch.co.za/admin/concerns" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">Review concerns</a></p>`
+    ),
+  }
+}

@@ -4,6 +4,7 @@ import {
   newBusinessAdminEmail,
   newClaimAdminEmail,
   newReportAdminEmail,
+  newConcernAdminEmail,
 } from '@/lib/email'
 
 /**
@@ -13,7 +14,7 @@ import {
 export async function POST(request: Request) {
   try {
     const { event, name, reason } = (await request.json()) as {
-      event: 'new_business' | 'new_claim' | 'new_report'
+      event: 'new_business' | 'new_claim' | 'new_report' | 'new_concern'
       name?: string
       reason?: string
     }
@@ -27,6 +28,8 @@ export async function POST(request: Request) {
       await sendEmail(newClaimAdminEmail(admin, name ?? 'a business', 'Someone'))
     } else if (event === 'new_report') {
       await sendEmail(newReportAdminEmail(admin, reason ?? 'unspecified'))
+    } else if (event === 'new_concern') {
+      await sendEmail(newConcernAdminEmail(admin, name ?? 'a business'))
     }
 
     return NextResponse.json({ ok: true })

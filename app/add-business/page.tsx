@@ -40,6 +40,7 @@ export default function AddBusinessPage() {
     address_text: '',
     isOwner: false,
   })
+  const [inWard, setInWard] = useState<boolean | null>(true)
   const [serves, setServes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -118,6 +119,7 @@ export default function AddBusinessPage() {
       p_whatsapp: form.whatsapp,
       p_website: form.website,
       p_address: address,
+      p_in_ward: inWard,
     })
 
     if (rpcErr) {
@@ -237,6 +239,29 @@ export default function AddBusinessPage() {
               <input type="url" value={form.website}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
                 placeholder="https://…" className={inputClass} style={inputStyle} />
+            </div>
+
+            <div>
+              <label className={labelClass} style={labelStyle}>Is this business based in Ward 23? *</label>
+              <p className="text-xs text-gray-400 mb-2">
+                Businesses from outside the ward are welcome — we just show neighbours where they&apos;re based.
+              </p>
+              <div className="flex gap-2">
+                {[
+                  { v: true, label: '✓ Yes — based in Ward 23' },
+                  { v: false, label: 'No — based outside the ward' },
+                ].map((o) => (
+                  <button key={String(o.v)} type="button" onClick={() => setInWard(o.v)}
+                    className="flex-1 px-3 py-2.5 rounded-xl text-sm font-semibold border transition-colors"
+                    style={
+                      inWard === o.v
+                        ? { backgroundColor: 'var(--ivouch-blue)', color: 'white', borderColor: 'var(--ivouch-blue)' }
+                        : { backgroundColor: 'white', color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }
+                    }>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div>

@@ -117,6 +117,7 @@ export interface Business {
   status: BusinessStatus
   created_by_user_id: string | null
   is_community_sourced: boolean
+  in_ward: boolean | null
   created_at: string
   updated_at: string
   primary_category?: Category
@@ -197,4 +198,19 @@ export interface ActivityVouch {
     categoryName: string | null
     categoryIcon: string | null
   }
+}
+
+export type ConcernStatus = 'open' | 'reviewed' | 'resolved' | 'dismissed'
+export type ConcernCategory = 'no_show' | 'poor_workmanship' | 'overcharging' | 'unprofessional' | 'safety' | 'other'
+
+export interface Concern {
+  id: string
+  business_id: string
+  user_id: string
+  category: ConcernCategory
+  details: string | null
+  status: ConcernStatus
+  created_at: string
+  business?: Pick<Business, 'name' | 'slug'>
+  profile?: Pick<Profile, 'display_name' | 'first_name' | 'email'>
 }

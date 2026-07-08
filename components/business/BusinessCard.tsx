@@ -47,9 +47,14 @@ export default function BusinessCard({ business }: BusinessCardProps) {
               <BadgeCheck size={17} className="flex-shrink-0" style={{ color: 'var(--ivouch-blue)' }} />
             )}
           </Link>
-          {business.primary_category && (
-            <span className="chip chip-blue mt-1.5">{business.primary_category.name}</span>
-          )}
+          <span className="flex items-center gap-1.5 flex-wrap mt-1.5">
+            {business.primary_category && (
+              <span className="chip chip-blue">{business.primary_category.name}</span>
+            )}
+            {business.in_ward === false && (
+              <span className="chip" title="Based outside Ward 23">Outside Ward 23</span>
+            )}
+          </span>
         </div>
       </div>
 

@@ -10,8 +10,10 @@ import VouchButton from '@/components/business/VouchButton'
 import VouchSuccessToast from '@/components/business/VouchSuccessToast'
 import ReportButton from '@/components/business/ReportButton'
 import MobileActionBar from '@/components/business/MobileActionBar'
+import ConcernButton from '@/components/business/ConcernButton'
 import { getBusinessBySlug } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
+import { getConcernCount } from '@/lib/data/concerns'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 
 interface Props {
@@ -39,9 +41,10 @@ export default async function BusinessProfilePage({ params }: Props) {
   const business = await getBusinessBySlug(businessSlug)
   if (!business) notFound()
 
-  const [vouches, vouchCount] = await Promise.all([
+  const [vouches, vouchCount, concernCount] = await Promise.all([
     getVouchesByBusiness(business.id, 20),
     getVouchCount(business.id),
+    getConcernCount(business.id),
   ])
 
   // JSON-LD structured data for local search
@@ -126,6 +129,18 @@ export default async function BusinessProfilePage({ params }: Props) {
                       <BadgeCheck size={14} /> Verified
                     </span>
                   )}
+                  {business.in_ward === true && (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+                      <MapPin size={12} /> In Ward 23
+                    </span>
+                  )}
+                  {business.in_ward === false && (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: 'var(--cloud-grey)', color: '#5A6B85' }}>
+                      <MapPin size={12} /> Outside Ward 23
+                    </span>
+                  )}
                   {business.claimed_status && (
                     <span className="text-xs px-2 py-0.5 rounded-full border" style={{ borderColor: 'var(--cloud-grey)', color: '#5A6B85' }}>
                       Claimed
@@ -158,6 +173,20 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
           </div>
         </section>
+
+        {concernCount > 0 && (
+          <div className="max-w-4xl mx-auto px-4 pt-6">
+            <div className="rounded-2xl border px-5 py-4 flex items-start gap-3"
+              style={{ backgroundColor: 'rgba(255,200,87,0.14)', borderColor: 'rgba(183,121,31,0.25)' }}>
+              <span className="text-lg" aria-hidden>⚠️</span>
+              <div className="text-sm" style={{ color: '#6B4E10' }}>
+                <strong>{concernCount} community concern{concernCount === 1 ? '' : 's'} noted.</strong>{' '}
+                Moderators have verified concern reports about this listing. Consider asking for
+                references and getting quotes in writing.
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Main content */}
@@ -274,6 +303,9 @@ export default async function BusinessProfilePage({ params }: Props) {
                 </div>
               )}
             </div>
+
+            {/* Different experience? */}
+            <ConcernButton businessId={business.id} businessName={business.name} />
 
             {/* Share */}
             <WhatsAppShare businessName={business.name} vouchCount={vouchCount} slug={business.slug} />

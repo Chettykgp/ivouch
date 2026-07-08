@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 import BusinessSearch from '@/components/business/BusinessSearch'
+import WithdrawVouchButton from '@/components/vouches/WithdrawVouchButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -107,8 +108,11 @@ export default async function ProfilePage() {
                         {v.business?.name ?? 'a business'}
                       </span>
                     </span>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">
-                      {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
+                    <span className="inline-flex items-center gap-3 whitespace-nowrap">
+                      <span className="text-xs text-gray-400">
+                        {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
+                      </span>
+                      <WithdrawVouchButton vouchId={v.id} businessName={v.business?.name ?? 'this business'} />
                     </span>
                   </div>
                   {v.comment && <p className="text-sm text-gray-600 mt-1">&ldquo;{v.comment}&rdquo;</p>}

@@ -1,15 +1,16 @@
 import Link from 'next/link'
-import { Store, ShieldCheck, Clock, FileCheck2, Flag, ArrowRight } from 'lucide-react'
+import { Store, ShieldCheck, ShieldAlert, Clock, FileCheck2, Flag, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 async function getStats() {
   const supabase = await createClient()
-  const [businesses, vouches, pendingBusinesses, pendingClaims, openReports] = await Promise.all([
+  const [businesses, vouches, pendingBusinesses, pendingClaims, openReports, openConcerns] = await Promise.all([
     supabase.from('businesses').select('*', { count: 'exact', head: true }),
     supabase.from('vouches').select('*', { count: 'exact', head: true }),
     supabase.from('businesses').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('claims').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+    supabase.from('concerns').select('*', { count: 'exact', head: true }).eq('status', 'open'),
   ])
   return {
     businesses: businesses.count ?? 0,
@@ -17,6 +18,7 @@ async function getStats() {
     pendingBusinesses: pendingBusinesses.count ?? 0,
     pendingClaims: pendingClaims.count ?? 0,
     openReports: openReports.count ?? 0,
+    openConcerns: openConcerns.count ?? 0,
   }
 }
 
@@ -29,12 +31,14 @@ export default async function AdminDashboard() {
     { label: 'Pending businesses', value: stats.pendingBusinesses, icon: Clock, href: '/admin/businesses?status=pending', accent: stats.pendingBusinesses > 0 },
     { label: 'Pending claims', value: stats.pendingClaims, icon: FileCheck2, href: '/admin/claims', accent: stats.pendingClaims > 0 },
     { label: 'Open reports', value: stats.openReports, icon: Flag, href: '/admin/vouches', accent: stats.openReports > 0 },
+    { label: 'Open concerns', value: stats.openConcerns, icon: ShieldAlert, href: '/admin/concerns', accent: stats.openConcerns > 0 },
   ]
 
   const actions = [
     { label: `Review ${stats.pendingBusinesses} pending businesses`, href: '/admin/businesses?status=pending', show: stats.pendingBusinesses > 0 },
     { label: `Review ${stats.pendingClaims} pending claims`, href: '/admin/claims', show: stats.pendingClaims > 0 },
     { label: `Look at ${stats.openReports} open reports`, href: '/admin/vouches', show: stats.openReports > 0 },
+    { label: `Review ${stats.openConcerns} open concerns`, href: '/admin/concerns', show: stats.openConcerns > 0 },
     { label: 'Manage communities', href: '/admin/communities', show: true },
     { label: 'Manage categories', href: '/admin/categories', show: true },
   ].filter((a) => a.show)
@@ -45,7 +49,7 @@ export default async function AdminDashboard() {
       <p className="text-sm text-gray-500 mb-6">Moderate and manage JHB Ward 23.</p>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
         {cards.map((card) => (
           <Link key={card.label} href={card.href} className="card-soft card-hover p-5">
             <span className="icon-tile w-10 h-10 mb-3 flex"
