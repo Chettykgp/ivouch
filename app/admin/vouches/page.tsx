@@ -25,23 +25,23 @@ export default async function AdminVouchesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--charcoal)' }}>Vouches</h1>
+      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--ink)' }}>Vouches</h1>
 
       <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--cloud-grey)' }}>
         <table className="w-full text-sm">
           <thead>
             <tr style={{ backgroundColor: 'var(--cloud-grey)' }}>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Business</th>
-              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--charcoal)' }}>By</th>
-              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--charcoal)' }}>Comment</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Status</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Business</th>
+              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--ink)' }}>By</th>
+              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--ink)' }}>Comment</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Status</th>
               <th className="text-left px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {(vouches ?? []).map((v: Vouch & { business?: { name: string }; profile?: { display_name?: string } }) => (
               <tr key={v.id} className="border-t" style={{ borderColor: 'var(--cloud-grey)' }}>
-                <td className="px-4 py-3 font-medium" style={{ color: 'var(--charcoal)' }}>
+                <td className="px-4 py-3 font-medium" style={{ color: 'var(--ink)' }}>
                   {v.business?.name ?? '—'}
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell text-gray-500">
@@ -62,17 +62,17 @@ export default async function AdminVouchesPage() {
                   <div className="flex gap-2">
                     {v.status !== 'hidden' && (
                       <form action={async () => { 'use server'; await updateVouch(v.id, 'hidden') }}>
-                        <button className="text-xs px-2 py-1 rounded bg-gray-200 font-medium text-gray-600">Hide</button>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-200 font-medium text-gray-600">Hide</button>
                       </form>
                     )}
                     {v.status !== 'flagged' && (
                       <form action={async () => { 'use server'; await updateVouch(v.id, 'flagged') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>Flag</button>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>Flag</button>
                       </form>
                     )}
                     {v.status !== 'active' && (
                       <form action={async () => { 'use server'; await updateVouch(v.id, 'active') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>Activate</button>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>Activate</button>
                       </form>
                     )}
                   </div>

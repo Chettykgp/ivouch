@@ -35,7 +35,7 @@ export default async function AdminBusinessesPage({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-black" style={{ color: 'var(--charcoal)' }}>Businesses</h1>
+        <h1 className="text-2xl font-black" style={{ color: 'var(--ink)' }}>Businesses</h1>
         <div className="flex gap-2 text-sm">
           {['', 'pending', 'active', 'hidden', 'rejected'].map((s) => (
             <a
@@ -44,8 +44,8 @@ export default async function AdminBusinessesPage({
               className="px-3 py-1.5 rounded-lg border"
               style={
                 status === s || (!status && !s)
-                  ? { backgroundColor: 'var(--navy)', color: 'white', borderColor: 'var(--navy)' }
-                  : { backgroundColor: 'white', color: 'var(--charcoal)', borderColor: 'var(--cloud-grey)' }
+                  ? { backgroundColor: 'var(--ivouch-blue)', color: 'white', borderColor: 'var(--ivouch-blue)' }
+                  : { backgroundColor: 'white', color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }
               }
             >
               {s || 'All'}
@@ -58,9 +58,9 @@ export default async function AdminBusinessesPage({
         <table className="w-full text-sm">
           <thead>
             <tr style={{ backgroundColor: 'var(--cloud-grey)' }}>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Business</th>
-              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--charcoal)' }}>Category</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Status</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Business</th>
+              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--ink)' }}>Category</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Status</th>
               <th className="text-left px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
@@ -68,7 +68,7 @@ export default async function AdminBusinessesPage({
             {(businesses ?? []).map((b: Business & { primary_category?: { name: string; icon?: string } }) => (
               <tr key={b.id} className="border-t" style={{ borderColor: 'var(--cloud-grey)' }}>
                 <td className="px-4 py-3">
-                  <div className="font-medium" style={{ color: 'var(--charcoal)' }}>{b.name}</div>
+                  <div className="font-medium" style={{ color: 'var(--ink)' }}>{b.name}</div>
                   <div className="text-xs text-gray-400">{b.phone}</div>
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell text-gray-500">
@@ -86,21 +86,21 @@ export default async function AdminBusinessesPage({
                   <div className="flex gap-2">
                     {b.status !== 'active' && (
                       <form action={async () => { 'use server'; await updateBusinessStatus(b.id, 'active') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>
                           Approve
                         </button>
                       </form>
                     )}
                     {b.status !== 'rejected' && (
                       <form action={async () => { 'use server'; await updateBusinessStatus(b.id, 'rejected') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>
                           Reject
                         </button>
                       </form>
                     )}
                     {b.status !== 'hidden' && (
                       <form action={async () => { 'use server'; await updateBusinessStatus(b.id, 'hidden') }}>
-                        <button className="text-xs px-2 py-1 rounded bg-gray-200 font-medium text-gray-600">
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-200 font-medium text-gray-600">
                           Hide
                         </button>
                       </form>

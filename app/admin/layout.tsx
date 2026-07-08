@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import Logo from '@/components/layout/Logo'
+import AdminNav from '@/components/admin/AdminNav'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -8,7 +11,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!user) redirect('/auth?redirect=/admin')
 
-  // Check admin role
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -20,24 +22,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--cloud-grey)' }}>
-      <nav style={{ backgroundColor: 'var(--navy)' }} className="px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center gap-6">
-          <Link href="/admin" className="text-white font-black text-xl">
-            i<span style={{ color: 'var(--vouch-green)' }}>Vouch</span>
-            <span className="text-xs ml-2 opacity-60 font-normal">Admin</span>
-          </Link>
-          <div className="flex gap-4 text-sm text-white/70">
-            <Link href="/admin/businesses" className="hover:text-white">Businesses</Link>
-            <Link href="/admin/claims" className="hover:text-white">Claims</Link>
-            <Link href="/admin/vouches" className="hover:text-white">Vouches</Link>
-            <Link href="/admin/communities" className="hover:text-white">Communities</Link>
-            <Link href="/admin/categories" className="hover:text-white">Categories</Link>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--mist)' }}>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b" style={{ borderColor: 'var(--cloud-grey)' }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2.5">
+              <Logo href="/admin" />
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+                Admin
+              </span>
+            </div>
+            <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 hover:text-[var(--ivouch-blue)] transition-colors">
+              <ArrowLeft size={15} /> Back to site
+            </Link>
           </div>
-          <Link href="/" className="ml-auto text-white/60 hover:text-white text-sm">← Site</Link>
+          <div className="pb-2 -mt-1">
+            <AdminNav />
+          </div>
         </div>
-      </nav>
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      </header>
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
         {children}
       </main>
     </div>

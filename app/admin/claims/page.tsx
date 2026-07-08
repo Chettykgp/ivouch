@@ -17,15 +17,15 @@ export default async function AdminClaimsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--charcoal)' }}>Business Claims</h1>
+      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--ink)' }}>Business Claims</h1>
 
       <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--cloud-grey)' }}>
         <table className="w-full text-sm">
           <thead>
             <tr style={{ backgroundColor: 'var(--cloud-grey)' }}>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Business</th>
-              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--charcoal)' }}>Claimant</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Status</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Business</th>
+              <th className="text-left px-4 py-3 font-semibold hidden md:table-cell" style={{ color: 'var(--ink)' }}>Claimant</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Status</th>
               <th className="text-left px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
@@ -33,7 +33,7 @@ export default async function AdminClaimsPage() {
             {(claims ?? []).map((c: Claim & { business?: { name: string } }) => (
               <tr key={c.id} className="border-t" style={{ borderColor: 'var(--cloud-grey)' }}>
                 <td className="px-4 py-3">
-                  <div className="font-medium" style={{ color: 'var(--charcoal)' }}>{c.business?.name ?? '—'}</div>
+                  <div className="font-medium" style={{ color: 'var(--ink)' }}>{c.business?.name ?? '—'}</div>
                   <div className="text-xs text-gray-400">{new Date(c.created_at).toLocaleDateString('en-ZA')}</div>
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">
@@ -55,12 +55,12 @@ export default async function AdminClaimsPage() {
                   {c.status === 'pending' && (
                     <div className="flex gap-2">
                       <form action={async () => { 'use server'; await updateClaim(c.id, 'approved') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--vouch-green)' }}>
                           Approve
                         </button>
                       </form>
                       <form action={async () => { 'use server'; await updateClaim(c.id, 'rejected') }}>
-                        <button className="text-xs px-2 py-1 rounded text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: 'var(--coral)' }}>
                           Reject
                         </button>
                       </form>

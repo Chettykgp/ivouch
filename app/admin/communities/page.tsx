@@ -6,21 +6,21 @@ export default async function AdminCommunitiesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--charcoal)' }}>Communities</h1>
+      <h1 className="text-2xl font-black mb-6" style={{ color: 'var(--ink)' }}>Communities</h1>
       <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--cloud-grey)' }}>
         <table className="w-full text-sm">
           <thead>
             <tr style={{ backgroundColor: 'var(--cloud-grey)' }}>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Name</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Slug</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>City</th>
-              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--charcoal)' }}>Status</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Name</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Slug</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>City</th>
+              <th className="text-left px-4 py-3 font-semibold" style={{ color: 'var(--ink)' }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {(communities ?? []).map((c) => (
               <tr key={c.id} className="border-t" style={{ borderColor: 'var(--cloud-grey)' }}>
-                <td className="px-4 py-3 font-medium" style={{ color: 'var(--charcoal)' }}>{c.name}</td>
+                <td className="px-4 py-3 font-medium" style={{ color: 'var(--ink)' }}>{c.name}</td>
                 <td className="px-4 py-3 text-gray-500">{c.slug}</td>
                 <td className="px-4 py-3 text-gray-500">{c.city}</td>
                 <td className="px-4 py-3">
