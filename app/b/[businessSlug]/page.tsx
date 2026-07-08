@@ -9,6 +9,7 @@ import WhatsAppShare from '@/components/business/WhatsAppShare'
 import VouchButton from '@/components/business/VouchButton'
 import VouchSuccessToast from '@/components/business/VouchSuccessToast'
 import ReportButton from '@/components/business/ReportButton'
+import MobileActionBar from '@/components/business/MobileActionBar'
 import { getBusinessBySlug } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
 import { avatarColor, initials } from '@/lib/utils/avatar'
@@ -287,6 +288,8 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
           </div>
         </div>
+        <MobileActionBar businessId={business.id} phone={business.phone} whatsapp={business.whatsapp} />
+        <div className="h-20 md:hidden" aria-hidden />
       </main>
       <Footer />
     </>
