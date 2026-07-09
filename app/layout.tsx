@@ -37,13 +37,13 @@ export const metadata: Metadata = {
     title: 'iVouch – Find the help your neighbours vouched for',
     description:
       'Trusted local businesses in JHB South Ward 23, vouched for by real neighbours. No paid reviews, ever.',
-    images: [{ url: '/hero-family.jpg', width: 1100, height: 733, alt: 'iVouch — your community, vouched for' }],
+    images: [{ url: '/hero-poster.jpg', width: 1100, height: 733, alt: 'iVouch — your community, vouched for' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'iVouch – Find the help your neighbours vouched for',
     description: 'Trusted local businesses in JHB South Ward 23, vouched for by real neighbours.',
-    images: ['/hero-family.jpg'],
+    images: ['/hero-poster.jpg'],
   },
   robots: { index: true, follow: true },
   manifest: '/manifest.webmanifest',

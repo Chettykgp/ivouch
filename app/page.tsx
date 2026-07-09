@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   MapPin, ArrowRight, ShieldCheck, Users, Store, HeartHandshake,
   BadgeCheck, Star, Sparkles,
@@ -134,14 +133,18 @@ export default async function HomePage() {
             {/* Right column — hero image + floating cards */}
             <div className="relative">
               <div className="relative rounded-[2rem] overflow-hidden shadow-[var(--shadow-lift)] aspect-[4/3] lg:aspect-[5/4]">
-                <Image
-                  src="/hero-family.jpg"
-                  alt="A happy local family in their neighbourhood"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                />
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster="/hero-poster.jpg"
+                  aria-label="Local Ward 23 service providers — a plumber, electrician, gardener, baker and handyman at work"
+                >
+                  <source src="/hero.mp4" type="video/mp4" />
+                </video>
               </div>
 
               {/* Floating testimonial card */}
