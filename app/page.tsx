@@ -69,15 +69,21 @@ export default async function HomePage() {
 
             {/* Left column */}
             <div>
-              {/* Location pill */}
-              <div className="inline-flex items-center gap-2 rounded-full pl-2 pr-4 py-1.5 mb-6 text-sm"
-                style={{ backgroundColor: 'var(--ivouch-blue-soft)' }}>
-                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-bold text-white text-xs"
-                  style={{ backgroundColor: 'var(--ivouch-blue)' }}>
-                  <MapPin size={13} /> JHB Ward 23
-                </span>
-                <span className="font-medium" style={{ color: 'var(--ink)' }}>
-                  Your community. Real vouchers. Trusted people.
+              {/* Location pill + free badge */}
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                <div className="inline-flex items-center gap-2 rounded-full pl-2 pr-4 py-1.5 text-sm"
+                  style={{ backgroundColor: 'var(--ivouch-blue-soft)' }}>
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-bold text-white text-xs"
+                    style={{ backgroundColor: 'var(--ivouch-blue)' }}>
+                    <MapPin size={13} /> JHB Ward 23
+                  </span>
+                  <span className="font-medium" style={{ color: 'var(--ink)' }}>
+                    Your community. Real vouchers. Trusted people.
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold border"
+                  style={{ borderColor: 'var(--vouch-green)', color: 'var(--vouch-green-dark)', backgroundColor: 'rgba(32,178,107,0.08)' }}>
+                  ✓ 100% free community service
                 </span>
               </div>
 

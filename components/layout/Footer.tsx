@@ -14,10 +14,16 @@ export default function Footer() {
               Find people your neighbours vouch for. Real recommendations from real
               neighbours — no paid reviews, ever.
             </p>
-            <div className="inline-flex items-center gap-1.5 mt-5 px-3 py-1.5 rounded-full text-xs font-medium"
-              style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }}>
-              <MapPin size={13} style={{ color: 'var(--ivouch-blue)' }} />
-              JHB South · Ward 23
+            <div className="flex flex-wrap items-center gap-2 mt-5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+                style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }}>
+                <MapPin size={13} style={{ color: 'var(--ivouch-blue)' }} />
+                JHB South · Ward 23
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                style={{ backgroundColor: 'rgba(32,178,107,0.15)', color: '#7BE0AE' }}>
+                ✓ Free community service
+              </span>
             </div>
           </div>
 

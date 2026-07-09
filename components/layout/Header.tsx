@@ -15,6 +15,15 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b" style={{ borderColor: 'var(--cloud-grey)' }}>
+      {/* Free community service announcement bar */}
+      <Link
+        href="/add-business"
+        className="block text-center text-xs sm:text-sm font-semibold text-white px-4 py-1.5 transition-opacity hover:opacity-95"
+        style={{ backgroundColor: 'var(--ivouch-blue)' }}
+      >
+        💙 A <span className="font-extrabold">free</span> community service — free to find help, free to list your business.
+      </Link>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         <Logo />
 
