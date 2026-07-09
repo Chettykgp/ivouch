@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Logo href="/" textClassName="text-white" markInk="#FFFFFF" />
+            <Logo href="/" textClassName="text-white" dark />
             <p className="text-sm leading-relaxed text-white/60 mt-4 max-w-sm">
               Find people your neighbours vouch for. Real recommendations from real
               neighbours — no paid reviews, ever.
