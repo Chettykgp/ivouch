@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
   MapPin, ArrowRight, ShieldCheck, Users, Store, HeartHandshake,
-  BadgeCheck, Star, Sparkles,
+  Sparkles,
 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -145,31 +145,6 @@ export default async function HomePage() {
                 >
                   <source src="/hero.mp4" type="video/mp4" />
                 </video>
-              </div>
-
-              {/* Floating testimonial card */}
-              <div className="absolute left-3 sm:-left-4 bottom-6 w-[16rem] sm:w-[19rem] rounded-2xl bg-white p-4 shadow-[var(--shadow-lift)] border animate-fade-up"
-                style={{ borderColor: 'var(--cloud-grey)' }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                    style={{ backgroundColor: '#E8618C' }}>NM</div>
-                  <div className="flex-1">
-                    <div className="text-sm font-bold" style={{ color: 'var(--ink)' }}>Naledi M.</div>
-                    <div className="text-[11px] text-gray-400">JHB Ward 23, Johannesburg</div>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={12} fill="var(--ivouch-blue)" style={{ color: 'var(--ivouch-blue)' }} />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-sm mt-2.5 leading-snug" style={{ color: 'var(--charcoal)' }}>
-                  Thabo fixed our geyser same day. Honest, professional and reasonably priced. Highly recommend!
-                </p>
-                <div className="flex items-center gap-1.5 mt-3 text-sm font-semibold"
-                  style={{ color: 'var(--ivouch-blue)' }}>
-                  <BadgeCheck size={16} /> Vouched by 12 neighbours
-                </div>
               </div>
 
               {/* Dark "no paid reviews" pill */}
