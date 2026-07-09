@@ -137,7 +137,6 @@ export default async function HomePage() {
                   className="absolute inset-0 w-full h-full object-cover"
                   autoPlay
                   muted
-                  loop
                   playsInline
                   preload="metadata"
                   poster="/hero-poster.jpg"
