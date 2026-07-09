@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin, BadgeCheck, ShieldCheck, ArrowRight } from 'lucide-react'
 import type { Business } from '@/types'
 import { avatarColor, initials } from '@/lib/utils/avatar'
+import ShareVouchButton from './ShareVouchButton'
 
 interface BusinessCardProps {
   business: Business & { vouch_count?: number; top_tags?: string[] }
@@ -107,6 +108,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
             </svg>
           </a>
         )}
+        <ShareVouchButton businessName={business.name} slug={business.slug} variant="icon" />
         <Link
           href={`/b/${business.slug}`}
           aria-label="View profile"

@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/server'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 import BusinessSearch from '@/components/business/BusinessSearch'
 import WithdrawVouchButton from '@/components/vouches/WithdrawVouchButton'
+import ShareVouchButton from '@/components/business/ShareVouchButton'
+import { businessUrl } from '@/lib/whatsapp/share'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,14 +42,23 @@ export default async function ProfilePage() {
     'You'
 
   let vouches: MyVouchRow[] = []
+  let ownedBusinesses: { id: string; name: string; slug: string }[] = []
   if (profile?.id) {
-    const { data } = await supabase
-      .from('vouches')
-      .select('id, created_at, comment, tags, business:businesses(name, slug)')
-      .eq('user_id', profile.id)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-    vouches = (data as unknown as MyVouchRow[]) ?? []
+    const [{ data: vData }, { data: oData }] = await Promise.all([
+      supabase
+        .from('vouches')
+        .select('id, created_at, comment, tags, business:businesses(name, slug)')
+        .eq('user_id', profile.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('businesses')
+        .select('id, name, slug')
+        .eq('owner_user_id', profile.id)
+        .eq('claimed_status', true),
+    ])
+    vouches = (vData as unknown as MyVouchRow[]) ?? []
+    ownedBusinesses = (oData as { id: string; name: string; slug: string }[]) ?? []
   }
 
   const color = avatarColor(name)
@@ -87,6 +98,35 @@ export default async function ProfilePage() {
             <BusinessSearch action="vouch" />
           </div>
         </div>
+
+        {/* Owner tool — ask customers to vouch */}
+        {ownedBusinesses.length > 0 && (
+          <div className="max-w-3xl mx-auto px-4 pt-6">
+            <div className="card-soft p-5">
+              <h2 className="text-lg font-extrabold mb-1" style={{ color: 'var(--ink)' }}>
+                Ask your customers to vouch
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Businesses don&apos;t buy trust here — they earn it. Share your link with happy
+                customers so they can vouch for you.
+              </p>
+              <div className="space-y-3">
+                {ownedBusinesses.map((b) => (
+                  <div key={b.id} className="flex items-center justify-between gap-3 rounded-xl border p-3"
+                    style={{ borderColor: 'var(--cloud-grey)' }}>
+                    <span className="font-semibold text-sm truncate" style={{ color: 'var(--ink)' }}>{b.name}</span>
+                    <ShareVouchButton
+                      businessName={b.name}
+                      slug={b.slug}
+                      variant="icon"
+                      message={`Happy with our service? Please vouch for us on iVouch: ${businessUrl(b.slug)} — thanks, ${b.name}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="max-w-3xl mx-auto px-4 py-8" id="vouches">
           <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--ink)' }}>

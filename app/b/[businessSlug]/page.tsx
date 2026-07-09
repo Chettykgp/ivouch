@@ -5,9 +5,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { Phone, Globe, MapPin, BadgeCheck, ShieldCheck } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import WhatsAppShare from '@/components/business/WhatsAppShare'
+import ShareVouchButton from '@/components/business/ShareVouchButton'
 import VouchButton from '@/components/business/VouchButton'
 import VouchSuccessToast from '@/components/business/VouchSuccessToast'
+import VouchedSharePrompt from '@/components/business/VouchedSharePrompt'
 import ReportButton from '@/components/business/ReportButton'
 import MobileActionBar from '@/components/business/MobileActionBar'
 import ConcernButton from '@/components/business/ConcernButton'
@@ -191,6 +192,9 @@ export default async function BusinessProfilePage({ params }: Props) {
         <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="md:col-span-2 space-y-6">
+            <Suspense fallback={null}>
+              <VouchedSharePrompt businessName={business.name} slug={business.slug} />
+            </Suspense>
             {business.description && (
               <div className="card-soft p-5">
                 <h2 className="font-extrabold mb-2" style={{ color: 'var(--ink)' }}>About</h2>
@@ -307,8 +311,8 @@ export default async function BusinessProfilePage({ params }: Props) {
             {/* Different experience? */}
             <ConcernButton businessId={business.id} businessName={business.name} />
 
-            {/* Share */}
-            <WhatsAppShare businessName={business.name} vouchCount={vouchCount} slug={business.slug} />
+            {/* Share to get vouches */}
+            <ShareVouchButton businessName={business.name} slug={business.slug} />
 
             {/* Secondary links */}
             <div className="text-xs text-center space-x-3 text-gray-400">
