@@ -146,17 +146,6 @@ export default async function HomePage() {
                 </video>
               </div>
 
-              {/* Dark "no paid reviews" pill */}
-              <div className="absolute right-3 sm:-right-3 bottom-24 sm:bottom-28 max-w-[13rem] rounded-2xl px-4 py-3 text-white shadow-[var(--shadow-lift)]"
-                style={{ backgroundColor: 'var(--ink)' }}>
-                <div className="flex items-start gap-2">
-                  <ShieldCheck size={18} style={{ color: 'var(--ivouch-blue)' }} className="mt-0.5 flex-shrink-0" />
-                  <p className="text-sm font-semibold leading-snug">
-                    Real people. Real experiences. No paid reviews. Ever.
-                  </p>
-                </div>
-              </div>
-
               {/* Trusted stamp */}
               <div className="hidden sm:flex absolute -top-3 -right-3 w-24 h-24 rounded-full items-center justify-center text-center text-white shadow-lg"
                 style={{ backgroundColor: 'var(--ivouch-blue)' }}>
