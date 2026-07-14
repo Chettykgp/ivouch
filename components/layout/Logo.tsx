@@ -13,19 +13,19 @@ interface LogoProps {
 }
 
 /**
- * iVouch logo — the real brand icon (chat bubble + person + thumbs-up),
- * cropped and cleaned from the source artwork, plus the "iVouch" wordmark.
+ * iVouch logo — the brand shield mark (person + verified check), cropped and
+ * cleaned from the source artwork, plus the "iVouch" wordmark. The shield reads
+ * on both light and dark backgrounds, so the same icon is used everywhere.
  */
 export default function Logo({
   textClassName = 'text-[var(--ink)]',
   href = '/',
   className = '',
   size = 34,
-  dark = false,
 }: LogoProps) {
-  const iconSrc = dark ? '/logo-icon-dark-bg.png' : '/logo-icon.png'
-  // Source icon aspect ratio is 454:487 (w:h)
-  const width = Math.round((size * 454) / 487)
+  const iconSrc = '/logo-icon.png'
+  // Shield icon aspect ratio is 209:240 (w:h)
+  const width = Math.round((size * 209) / 240)
 
   const mark = (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
