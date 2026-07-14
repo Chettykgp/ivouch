@@ -23,14 +23,17 @@ const BRAND = {
   mist: '#F5F7FD',
 }
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://ivouch.co.za'
+
 /** Shared branded wrapper so every mail looks like iVouch. */
 export function renderTemplate(title: string, bodyHtml: string): string {
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:${BRAND.mist};font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;padding-bottom:20px;">
-      <span style="font-size:26px;font-weight:800;color:${BRAND.ink};">i<span style="color:${BRAND.blue};">Vouch</span></span>
-      <div style="font-size:12px;color:#8a94a6;margin-top:2px;">JHB South · Ward 23</div>
+      <img src="${SITE}/logo-icon.png" alt="iVouch" width="40" height="46" style="display:inline-block;vertical-align:middle;border:0;" />
+      <span style="font-size:26px;font-weight:800;color:${BRAND.ink};vertical-align:middle;margin-left:8px;">i<span style="color:${BRAND.blue};">Vouch</span></span>
+      <div style="font-size:12px;color:#8a94a6;margin-top:6px;">JHB South · Ward 23</div>
     </div>
     <div style="background:#ffffff;border-radius:16px;padding:28px;border:1px solid #E8EEF2;">
       <h1 style="font-size:20px;color:${BRAND.ink};margin:0 0 14px;">${title}</h1>
