@@ -12,9 +12,37 @@ export default async function AdminClaimsPage() {
   async function updateClaim(id: string, status: string) {
     'use server'
     const { createClient: sc } = await import('@/lib/supabase/server')
+    const { createServiceClient } = await import('@/lib/supabase/service')
     const s = await sc()
-    const { error } = await s.from('claims').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id)
+
+    // Resolve the acting admin's profile id for reviewed_by.
+    const { data: { user } } = await s.auth.getUser()
+    let reviewedBy: string | null = null
+    if (user) {
+      const { data: adminProfile } = await s.from('profiles').select('id').eq('auth_user_id', user.id).maybeSingle()
+      reviewedBy = adminProfile?.id ?? null
+    }
+
+    const { error } = await s
+      .from('claims')
+      .update({ status, reviewed_at: new Date().toISOString(), reviewed_by: reviewedBy })
+      .eq('id', id)
     if (error) { console.error('[admin] updateClaim failed:', error.message); return }
+
+    // Approving a claim actually grants ownership of the business.
+    if (status === 'approved') {
+      const svc = createServiceClient()
+      const { data: claim } = await svc.from('claims').select('business_id, claimant_user_id').eq('id', id).maybeSingle()
+      if (claim?.business_id && claim.claimant_user_id) {
+        const { error: bErr } = await svc
+          .from('businesses')
+          .update({ owner_user_id: claim.claimant_user_id, claimed_status: true })
+          .eq('id', claim.business_id)
+        if (bErr) console.error('[admin] grant ownership failed:', bErr.message)
+        revalidatePath('/profile')
+      }
+    }
+
     revalidatePath('/admin/claims')
     revalidatePath('/admin')
   }

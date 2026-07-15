@@ -10,6 +10,7 @@ import WithdrawVouchButton from '@/components/vouches/WithdrawVouchButton'
 import ShareVouchButton from '@/components/business/ShareVouchButton'
 import EditProfileForm from '@/components/profile/EditProfileForm'
 import BusinessPhotoManager from '@/components/business/BusinessPhotoManager'
+import BusinessEditForm from '@/components/business/BusinessEditForm'
 import { businessUrl } from '@/lib/whatsapp/share'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +21,24 @@ interface MyVouchRow {
   comment: string | null
   tags: string[] | null
   business: { name: string; slug: string } | null
+}
+
+interface MyBusinessRow {
+  id: string
+  name: string
+  slug: string
+  images: string[] | null
+  status: string
+  claimed_status: boolean
+  owner_user_id: string | null
+  created_by_user_id: string | null
+  description: string | null
+  phone: string | null
+  whatsapp: string | null
+  website: string | null
+  address_text: string | null
+  primary_category_id: string | null
+  in_ward: boolean | null
 }
 
 export default async function ProfilePage() {
@@ -44,7 +63,7 @@ export default async function ProfilePage() {
     'You'
 
   let vouches: MyVouchRow[] = []
-  let ownedBusinesses: { id: string; name: string; slug: string; images: string[] | null }[] = []
+  let myBusinesses: MyBusinessRow[] = []
   if (profile?.id) {
     const [{ data: vData }, { data: oData }] = await Promise.all([
       supabase
@@ -55,12 +74,18 @@ export default async function ProfilePage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('businesses')
-        .select('id, name, slug, images')
-        .eq('owner_user_id', profile.id)
-        .eq('claimed_status', true),
+        .select('id, name, slug, images, status, claimed_status, owner_user_id, created_by_user_id, description, phone, whatsapp, website, address_text, primary_category_id, in_ward')
+        .or(`created_by_user_id.eq.${profile.id},owner_user_id.eq.${profile.id}`)
+        .order('created_at', { ascending: false }),
     ])
     vouches = (vData as unknown as MyVouchRow[]) ?? []
-    ownedBusinesses = (oData as { id: string; name: string; slug: string; images: string[] | null }[]) ?? []
+    // Dedupe (a business you both added and own).
+    const seen = new Set<string>()
+    myBusinesses = ((oData as MyBusinessRow[]) ?? []).filter((b) => {
+      if (seen.has(b.id)) return false
+      seen.add(b.id)
+      return true
+    })
   }
 
   const color = avatarColor(name)
@@ -109,33 +134,64 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {/* Owner tool — ask customers to vouch */}
-        {ownedBusinesses.length > 0 && (
+        {/* My Businesses — manage listings you added or own */}
+        {myBusinesses.length > 0 && (
           <div className="max-w-3xl mx-auto px-4 pt-6">
             <div className="card-soft p-5">
               <h2 className="text-lg font-extrabold mb-1" style={{ color: 'var(--ink)' }}>
-                Ask your customers to vouch
+                My Businesses
               </h2>
               <p className="text-sm text-gray-500 mb-4">
-                Businesses don&apos;t buy trust here — they earn it. Share your link with happy
-                customers so they can vouch for you.
+                Manage the businesses you&apos;ve added or claimed — edit details, add photos, and
+                share your link so happy customers can vouch for you.
               </p>
-              <div className="space-y-3">
-                {ownedBusinesses.map((b) => (
-                  <div key={b.id} className="rounded-xl border p-3 space-y-3"
-                    style={{ borderColor: 'var(--cloud-grey)' }}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-semibold text-sm truncate" style={{ color: 'var(--ink)' }}>{b.name}</span>
-                      <ShareVouchButton
-                        businessName={b.name}
-                        slug={b.slug}
-                        variant="icon"
-                        message={`Happy with our service? Please vouch for us on iVouch: ${businessUrl(b.slug)} — thanks, ${b.name}`}
-                      />
+              <div className="space-y-4">
+                {myBusinesses.map((b) => {
+                  const owns = b.claimed_status && b.owner_user_id === profile?.id
+                  const statusBadge =
+                    b.status === 'active'
+                      ? { label: 'Live', bg: 'var(--vouch-green)' }
+                      : b.status === 'pending'
+                        ? { label: 'Pending review', bg: 'var(--sunshine)' }
+                        : { label: 'Hidden', bg: 'var(--coral)' }
+                  return (
+                    <div key={b.id} className="rounded-xl border p-4 space-y-3"
+                      style={{ borderColor: 'var(--cloud-grey)' }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold truncate" style={{ color: 'var(--ink)' }}>{b.name}</div>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-white"
+                              style={{ backgroundColor: statusBadge.bg }}>
+                              {statusBadge.label}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                              style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+                              {owns ? 'You own this' : 'Added by you'}
+                            </span>
+                          </div>
+                        </div>
+                        <ShareVouchButton
+                          businessName={b.name}
+                          slug={b.slug}
+                          variant="icon"
+                          message={`Happy with our service? Please vouch for us on iVouch: ${businessUrl(b.slug)} — thanks, ${b.name}`}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <BusinessEditForm business={b} />
+                        {b.status === 'active' && (
+                          <Link href={`/b/${b.slug}`} className="btn-outline px-3 py-2 text-xs">
+                            View listing
+                          </Link>
+                        )}
+                      </div>
+
+                      <BusinessPhotoManager businessId={b.id} initialImages={b.images ?? []} compact />
                     </div>
-                    <BusinessPhotoManager businessId={b.id} initialImages={b.images ?? []} compact />
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>

@@ -129,7 +129,35 @@ export default function AddBusinessPage() {
       setLoading(false)
       return
     }
-    setCreatedId(typeof newId === 'string' ? newId : null)
+    const businessId = typeof newId === 'string' ? newId : null
+    setCreatedId(businessId)
+
+    // Ticking "I'm the owner" starts an ownership claim admins can approve.
+    if (businessId && form.isOwner) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name, first_name, last_name, email')
+          .eq('auth_user_id', user.id)
+          .maybeSingle()
+        const fullName = profile?.display_name
+          || [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
+          || user.email || ''
+        await supabase.rpc('submit_claim', {
+          p_business_id: businessId,
+          p_name: fullName,
+          p_email: profile?.email ?? user.email ?? '',
+          p_phone: form.phone ?? '',
+          p_evidence: 'Claimed at submission via Add Business (self-declared owner).',
+        })
+        fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'new_claim', name: form.name }),
+        }).catch(() => {})
+      }
+    }
 
     // Fire-and-forget admin notification
     fetch('/api/notify', {

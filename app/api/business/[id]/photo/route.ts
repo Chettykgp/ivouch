@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient, BUSINESS_IMAGES_BUCKET } from '@/lib/supabase/service'
+import { BUSINESS_IMAGES_BUCKET } from '@/lib/supabase/service'
+import { authorizeBusiness } from '@/lib/business/authorize'
 
 const MAX_IMAGES = 2
 const MAX_BYTES = 5 * 1024 * 1024
@@ -12,40 +12,9 @@ const EXT: Record<string, string> = {
   'image/gif': 'gif',
 }
 
-/** Verify the caller may manage this business's photos; returns the business or null. */
-async function authorize(businessId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { ok: false as const, status: 401, msg: 'Sign in to add photos.' }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, role')
-    .eq('auth_user_id', user.id)
-    .maybeSingle()
-  if (!profile) return { ok: false as const, status: 403, msg: 'No profile.' }
-
-  // Read the business with the service client so RLS/status doesn't hide it.
-  const svc = createServiceClient()
-  const { data: biz } = await svc
-    .from('businesses')
-    .select('id, images, owner_user_id, created_by_user_id, claimed_status')
-    .eq('id', businessId)
-    .maybeSingle()
-  if (!biz) return { ok: false as const, status: 404, msg: 'Business not found.' }
-
-  const isAdmin = profile.role === 'admin'
-  const isOwner = biz.claimed_status && biz.owner_user_id === profile.id
-  const isAdder = biz.created_by_user_id === profile.id
-  if (!isAdmin && !isOwner && !isAdder) {
-    return { ok: false as const, status: 403, msg: 'You can only manage photos for your own business.' }
-  }
-  return { ok: true as const, svc, biz }
-}
-
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const auth = await authorize(id)
+  const auth = await authorizeBusiness(id)
   if (!auth.ok) return NextResponse.json({ error: auth.msg }, { status: auth.status })
   const { svc, biz } = auth
 
@@ -82,7 +51,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const auth = await authorize(id)
+  const auth = await authorizeBusiness(id)
   if (!auth.ok) return NextResponse.json({ error: auth.msg }, { status: auth.status })
   const { svc, biz } = auth
 
