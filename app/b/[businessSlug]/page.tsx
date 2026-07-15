@@ -12,6 +12,7 @@ import VouchedSharePrompt from '@/components/business/VouchedSharePrompt'
 import ReportButton from '@/components/business/ReportButton'
 import MobileActionBar from '@/components/business/MobileActionBar'
 import ConcernButton from '@/components/business/ConcernButton'
+import BusinessGallery from '@/components/business/BusinessGallery'
 import { getBusinessBySlug } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
 import { getConcernCount } from '@/lib/data/concerns'
@@ -196,6 +197,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             <Suspense fallback={null}>
               <VouchedSharePrompt businessName={business.name} slug={business.slug} />
             </Suspense>
+            <BusinessGallery images={business.images} businessName={business.name} />
             {business.description && (
               <div className="card-soft p-5">
                 <h2 className="font-extrabold mb-2" style={{ color: 'var(--ink)' }}>About</h2>

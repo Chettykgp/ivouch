@@ -9,6 +9,7 @@ import BusinessSearch from '@/components/business/BusinessSearch'
 import WithdrawVouchButton from '@/components/vouches/WithdrawVouchButton'
 import ShareVouchButton from '@/components/business/ShareVouchButton'
 import EditProfileForm from '@/components/profile/EditProfileForm'
+import BusinessPhotoManager from '@/components/business/BusinessPhotoManager'
 import { businessUrl } from '@/lib/whatsapp/share'
 
 export const dynamic = 'force-dynamic'
@@ -43,7 +44,7 @@ export default async function ProfilePage() {
     'You'
 
   let vouches: MyVouchRow[] = []
-  let ownedBusinesses: { id: string; name: string; slug: string }[] = []
+  let ownedBusinesses: { id: string; name: string; slug: string; images: string[] | null }[] = []
   if (profile?.id) {
     const [{ data: vData }, { data: oData }] = await Promise.all([
       supabase
@@ -54,12 +55,12 @@ export default async function ProfilePage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('businesses')
-        .select('id, name, slug')
+        .select('id, name, slug, images')
         .eq('owner_user_id', profile.id)
         .eq('claimed_status', true),
     ])
     vouches = (vData as unknown as MyVouchRow[]) ?? []
-    ownedBusinesses = (oData as { id: string; name: string; slug: string }[]) ?? []
+    ownedBusinesses = (oData as { id: string; name: string; slug: string; images: string[] | null }[]) ?? []
   }
 
   const color = avatarColor(name)
@@ -121,15 +122,18 @@ export default async function ProfilePage() {
               </p>
               <div className="space-y-3">
                 {ownedBusinesses.map((b) => (
-                  <div key={b.id} className="flex items-center justify-between gap-3 rounded-xl border p-3"
+                  <div key={b.id} className="rounded-xl border p-3 space-y-3"
                     style={{ borderColor: 'var(--cloud-grey)' }}>
-                    <span className="font-semibold text-sm truncate" style={{ color: 'var(--ink)' }}>{b.name}</span>
-                    <ShareVouchButton
-                      businessName={b.name}
-                      slug={b.slug}
-                      variant="icon"
-                      message={`Happy with our service? Please vouch for us on iVouch: ${businessUrl(b.slug)} — thanks, ${b.name}`}
-                    />
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-semibold text-sm truncate" style={{ color: 'var(--ink)' }}>{b.name}</span>
+                      <ShareVouchButton
+                        businessName={b.name}
+                        slug={b.slug}
+                        variant="icon"
+                        message={`Happy with our service? Please vouch for us on iVouch: ${businessUrl(b.slug)} — thanks, ${b.name}`}
+                      />
+                    </div>
+                    <BusinessPhotoManager businessId={b.id} initialImages={b.images ?? []} compact />
                   </div>
                 ))}
               </div>

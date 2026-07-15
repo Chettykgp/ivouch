@@ -119,6 +119,7 @@ export interface Business {
   created_by_user_id: string | null
   is_community_sourced: boolean
   in_ward: boolean | null
+  images: string[] | null
   created_at: string
   updated_at: string
   primary_category?: Category

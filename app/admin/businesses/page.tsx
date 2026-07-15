@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { Business } from '@/types'
+import BusinessPhotoManager from '@/components/business/BusinessPhotoManager'
 
 async function updateBusinessStatus(id: string, status: string) {
   'use server'
@@ -89,7 +90,8 @@ export default async function AdminBusinessesPage({
               <tr key={b.id} className="border-t" style={{ borderColor: 'var(--cloud-grey)' }}>
                 <td className="px-4 py-3">
                   <div className="font-medium" style={{ color: 'var(--ink)' }}>{b.name}</div>
-                  <div className="text-xs text-gray-400">{b.phone}</div>
+                  <div className="text-xs text-gray-400 mb-2">{b.phone}</div>
+                  <BusinessPhotoManager businessId={b.id} initialImages={b.images ?? []} compact />
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell text-gray-500">
                   {b.primary_category?.icon} {b.primary_category?.name ?? '—'}

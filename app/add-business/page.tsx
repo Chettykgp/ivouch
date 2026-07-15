@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
 import { slugify } from '@/lib/utils/slugify'
 import { GROUP_ORDER } from '@/lib/data/category-groups'
+import BusinessPhotoManager from '@/components/business/BusinessPhotoManager'
 
 const WARD_SLUG = 'jhb-south-ward-23'
 
@@ -44,6 +45,7 @@ export default function AddBusinessPage() {
   const [serves, setServes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [createdId, setCreatedId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   // Load live categories + Ward 23 context.
@@ -110,7 +112,7 @@ export default function AddBusinessPage() {
     }
 
     // Submit via SECURITY DEFINER RPC (creates pending listing + links Ward 23).
-    const { error: rpcErr } = await supabase.rpc('submit_business', {
+    const { data: newId, error: rpcErr } = await supabase.rpc('submit_business', {
       p_name: form.name,
       p_slug: slug,
       p_description: form.description,
@@ -127,6 +129,7 @@ export default function AddBusinessPage() {
       setLoading(false)
       return
     }
+    setCreatedId(typeof newId === 'string' ? newId : null)
 
     // Fire-and-forget admin notification
     fetch('/api/notify', {
@@ -149,18 +152,31 @@ export default function AddBusinessPage() {
       <>
         <Header />
         <main className="flex-1 flex items-center justify-center px-4 py-16" style={{ backgroundColor: 'var(--mist)' }}>
-          <div className="max-w-md text-center card-soft p-8">
-            <div className="text-5xl mb-4">🎉</div>
-            <h1 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--ink)' }}>
-              Business submitted!
-            </h1>
-            <p className="text-gray-500 mb-6">
-              Thanks for growing Ward 23. Your listing is pending review and will be published
-              once approved.
-            </p>
-            <Link href="/" className="btn-blue inline-flex px-6 py-3">
-              Back to Home
-            </Link>
+          <div className="max-w-md w-full card-soft p-8">
+            <div className="text-center">
+              <div className="text-5xl mb-4">🎉</div>
+              <h1 className="text-2xl font-extrabold mb-3" style={{ color: 'var(--ink)' }}>
+                Business submitted!
+              </h1>
+              <p className="text-gray-500 mb-6">
+                Thanks for growing Ward 23. Your listing is pending review and will be published
+                once approved.
+              </p>
+            </div>
+
+            {createdId && (
+              <div className="border-t pt-6 mb-6 text-left" style={{ borderColor: 'var(--cloud-grey)' }}>
+                <h2 className="font-bold mb-1" style={{ color: 'var(--ink)' }}>Add photos <span className="font-normal text-gray-400">(optional)</span></h2>
+                <p className="text-sm text-gray-500 mb-4">A cover or menu photo helps neighbours choose. You can add up to 2.</p>
+                <BusinessPhotoManager businessId={createdId} initialImages={[]} />
+              </div>
+            )}
+
+            <div className="text-center">
+              <Link href="/" className="btn-blue inline-flex px-6 py-3">
+                {createdId ? 'Done' : 'Back to Home'}
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
