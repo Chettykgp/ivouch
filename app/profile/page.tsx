@@ -8,6 +8,7 @@ import { avatarColor, initials } from '@/lib/utils/avatar'
 import BusinessSearch from '@/components/business/BusinessSearch'
 import WithdrawVouchButton from '@/components/vouches/WithdrawVouchButton'
 import ShareVouchButton from '@/components/business/ShareVouchButton'
+import EditProfileForm from '@/components/profile/EditProfileForm'
 import { businessUrl } from '@/lib/whatsapp/share'
 
 export const dynamic = 'force-dynamic'
@@ -30,7 +31,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, first_name, display_name, email, home_community:home_community_id(name)')
+    .select('id, first_name, last_name, display_name, email, phone, home_community_id, home_community:home_community_id(name)')
     .eq('auth_user_id', user.id)
     .maybeSingle()
 
@@ -71,17 +72,25 @@ export default async function ProfilePage() {
         <div className="page-hero py-12 px-4">
           <div className="max-w-3xl mx-auto flex items-center gap-4">
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-black ring-4 ring-white"
+              className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-black ring-4 ring-white flex-shrink-0"
               style={{ backgroundColor: color }}
             >
               {initials(name)}
             </div>
-            <div>
-              <h1 className="text-2xl font-extrabold" style={{ color: 'var(--ink)' }}>{name}</h1>
-              <p className="text-sm text-gray-400">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-extrabold truncate" style={{ color: 'var(--ink)' }}>{name}</h1>
+              <p className="text-sm text-gray-400 truncate">
                 {homeCommunity ? `${homeCommunity} · ` : ''}
                 {user.email}
               </p>
+            </div>
+            <div className="ml-auto flex-shrink-0">
+              <EditProfileForm
+                displayName={profile?.display_name ?? ''}
+                firstName={profile?.first_name ?? ''}
+                lastName={profile?.last_name ?? ''}
+                phone={profile?.phone ?? ''}
+              />
             </div>
           </div>
         </div>
