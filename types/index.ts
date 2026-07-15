@@ -200,6 +200,20 @@ export interface ActivityVouch {
   }
 }
 
+export interface NewBusinessActivity {
+  id: string
+  created_at: string
+  name: string
+  slug: string
+  categoryName: string | null
+  categoryIcon: string | null
+}
+
+/** A single item in the community activity feed. */
+export type FeedItem =
+  | { kind: 'vouch'; created_at: string; vouch: ActivityVouch }
+  | { kind: 'business'; created_at: string; business: NewBusinessActivity }
+
 export type ConcernStatus = 'open' | 'reviewed' | 'resolved' | 'dismissed'
 export type ConcernCategory = 'no_show' | 'poor_workmanship' | 'overcharging' | 'unprofessional' | 'safety' | 'other'
 

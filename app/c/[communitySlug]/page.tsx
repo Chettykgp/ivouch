@@ -9,7 +9,7 @@ import ActivityFeed from '@/components/feed/ActivityFeed'
 import { resolveCommunityContext } from '@/lib/community/resolve-community-context'
 import { getBusinessesForCommunity } from '@/lib/business/get-businesses-for-community'
 import { getFeaturedCategories } from '@/lib/data/categories'
-import { getRecentVouchesForCommunities } from '@/lib/data/activity'
+import { getRecentActivityForCommunities } from '@/lib/data/activity'
 
 interface Props {
   params: Promise<{ communitySlug: string }>
@@ -43,7 +43,7 @@ export default async function CommunityPage({ params }: Props) {
 
   const [businesses, feed] = await Promise.all([
     getBusinessesForCommunity(relatedIds),
-    getRecentVouchesForCommunities(relatedIds, 8),
+    getRecentActivityForCommunities(relatedIds, 10),
   ])
 
   const isWard = community.type === 'ward'
@@ -103,7 +103,7 @@ export default async function CommunityPage({ params }: Props) {
               )}
               <span className="inline-flex items-center gap-2 rounded-full bg-white border px-4 py-2 text-sm font-semibold shadow-[var(--shadow-soft)]"
                 style={{ borderColor: 'var(--cloud-grey)', color: 'var(--ink)' }}>
-                <ShieldCheck size={15} style={{ color: 'var(--ivouch-blue)' }} /> {feed.length} recent vouches
+                <ShieldCheck size={15} style={{ color: 'var(--ivouch-blue)' }} /> {feed.length} recent updates
               </span>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default async function CommunityPage({ params }: Props) {
                 Happening now
               </h2>
               <ActivityFeed
-                vouches={feed}
+                items={feed}
                 emptyMessage="No vouches yet — be the first to vouch for a neighbour!"
               />
             </div>

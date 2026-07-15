@@ -9,7 +9,7 @@ import ActivityFeed from '@/components/feed/ActivityFeed'
 import CategoryExplorer, { type ExplorerCategory } from '@/components/community/CategoryExplorer'
 import { getCommunityWithContext, getCommunityStats } from '@/lib/data/communities'
 import { getFeaturedCategories, getCategoriesGrouped } from '@/lib/data/categories'
-import { getRecentVouches } from '@/lib/data/activity'
+import { getRecentActivity } from '@/lib/data/activity'
 import type { Category } from '@/types'
 
 export const revalidate = 120
@@ -23,7 +23,7 @@ function nf(n: number): string {
 export default async function HomePage() {
   let vouchCount = 0
   let featured: Category[] = []
-  let recentVouches: Awaited<ReturnType<typeof getRecentVouches>> = []
+  let recentVouches: Awaited<ReturnType<typeof getRecentActivity>> = []
   let categoryList: ExplorerCategory[] = []
   let groupNames: string[] = []
 
@@ -40,7 +40,7 @@ export default async function HomePage() {
   } catch { /* noop */ }
 
   try {
-    recentVouches = await getRecentVouches(6)
+    recentVouches = await getRecentActivity(8)
   } catch { /* noop */ }
 
   try {
@@ -209,7 +209,7 @@ export default async function HomePage() {
             </p>
           </div>
           <ActivityFeed
-            vouches={recentVouches}
+            items={recentVouches}
             emptyMessage="No vouches yet — be the first to vouch for a neighbour in Ward 23!"
           />
         </section>
