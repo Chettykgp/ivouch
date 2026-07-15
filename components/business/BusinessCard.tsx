@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin, BadgeCheck, ShieldCheck, ArrowRight } from 'lucide-react'
 import type { Business } from '@/types'
 import { avatarColor, initials } from '@/lib/utils/avatar'
+import { toWhatsAppNumber } from '@/lib/utils/phone'
 import ShareVouchButton from './ShareVouchButton'
 
 interface BusinessCardProps {
@@ -16,7 +17,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
     business.verification_status === 'phone_verified'
   const areas = (business.communities ?? []).map((c) => c?.name).filter(Boolean).slice(0, 3) as string[]
   const topTags = business.top_tags?.slice(0, 3) ?? []
-  const whatsapp = business.whatsapp?.replace(/\D/g, '')
+  const whatsapp = toWhatsAppNumber(business.whatsapp)
   const hasIcon = Boolean(business.primary_category?.icon)
 
   return (

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Phone, BadgeCheck } from 'lucide-react'
+import { toWhatsAppNumber } from '@/lib/utils/phone'
 
 interface MobileActionBarProps {
   businessId: string
@@ -12,7 +13,7 @@ interface MobileActionBarProps {
  * on a phone — keep the two actions that matter within thumb reach.
  */
 export default function MobileActionBar({ businessId, phone, whatsapp }: MobileActionBarProps) {
-  const wa = whatsapp?.replace(/\D/g, '')
+  const wa = toWhatsAppNumber(whatsapp)
 
   return (
     <div

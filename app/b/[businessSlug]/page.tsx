@@ -16,6 +16,7 @@ import { getBusinessBySlug } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
 import { getConcernCount } from '@/lib/data/concerns'
 import { avatarColor, initials } from '@/lib/utils/avatar'
+import { toWhatsAppNumber } from '@/lib/utils/phone'
 
 interface Props {
   params: Promise<{ businessSlug: string }>
@@ -83,7 +84,7 @@ export default async function BusinessProfilePage({ params }: Props) {
     .slice(0, 6)
     .map(([tag]) => tag)
 
-  const whatsappNumber = business.whatsapp?.replace(/\D/g, '')
+  const whatsappNumber = toWhatsAppNumber(business.whatsapp)
   const monogramColor = avatarColor(business.name)
   const hasIcon = Boolean(business.primary_category?.icon)
   const verified =
