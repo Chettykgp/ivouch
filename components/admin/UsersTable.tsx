@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Search, BadgeCheck, ShieldCheck, Store, Heart } from 'lucide-react'
+import { Search, BadgeCheck, ShieldCheck, Store, Heart, Trash2 } from 'lucide-react'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 
 export interface AdminUser {
@@ -13,6 +13,7 @@ export interface AdminUser {
   verified: boolean
   inWard: boolean
   isDemo: boolean
+  isSelf: boolean
   vouches: number
   businesses: number
   createdAt: string
@@ -23,9 +24,11 @@ type Filter = 'all' | 'residents' | 'pending' | 'admins'
 export default function UsersTable({
   users,
   setResidency,
+  removeUser,
 }: {
   users: AdminUser[]
   setResidency: (profileId: string, verified: boolean) => Promise<void>
+  removeUser: (profileId: string) => Promise<void>
 }) {
   const [q, setQ] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
@@ -156,21 +159,41 @@ export default function UsersTable({
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  {u.verified ? (
-                    <form action={setResidency.bind(null, u.id, false)}>
-                      <button className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
-                        Revoke
-                      </button>
-                    </form>
-                  ) : (
-                    <form action={setResidency.bind(null, u.id, true)}>
-                      <button className="text-xs px-2.5 py-1.5 rounded-lg font-medium text-white transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: 'var(--vouch-green)' }}>
-                        Confirm resident
-                      </button>
-                    </form>
-                  )}
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-2">
+                    {u.verified ? (
+                      <form action={setResidency.bind(null, u.id, false)}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                          Revoke
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={setResidency.bind(null, u.id, true)}>
+                        <button className="text-xs px-2.5 py-1.5 rounded-lg font-medium text-white transition-opacity hover:opacity-90"
+                          style={{ backgroundColor: 'var(--vouch-green)' }}>
+                          Confirm resident
+                        </button>
+                      </form>
+                    )}
+                    {!u.isSelf && (
+                      <form
+                        action={removeUser.bind(null, u.id)}
+                        onSubmit={(e) => {
+                          if (!confirm(`Permanently remove ${u.name}? This deletes their account, vouches, claims and reports. Businesses they added are kept. This cannot be undone.`)) {
+                            e.preventDefault()
+                          }
+                        }}
+                      >
+                        <button
+                          title="Remove user"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg border transition-colors hover:bg-[rgba(242,95,92,0.1)]"
+                          style={{ borderColor: 'var(--cloud-grey)', color: 'var(--coral)' }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
