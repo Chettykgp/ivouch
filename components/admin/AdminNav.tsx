@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Store, FileCheck2, ShieldCheck, ShieldAlert, MapPin, Tags } from 'lucide-react'
+import { LayoutDashboard, Store, FileCheck2, ShieldCheck, ShieldAlert, MapPin, Tags, Users } from 'lucide-react'
 
 const LINKS = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
+  { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/businesses', label: 'Businesses', icon: Store },
   { href: '/admin/claims', label: 'Claims', icon: FileCheck2 },
   { href: '/admin/vouches', label: 'Vouches', icon: ShieldCheck },

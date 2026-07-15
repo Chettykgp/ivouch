@@ -1,16 +1,20 @@
 import Link from 'next/link'
-import { Store, ShieldCheck, ShieldAlert, Clock, FileCheck2, Flag, ArrowRight } from 'lucide-react'
+import { Store, ShieldCheck, ShieldAlert, Clock, FileCheck2, Flag, ArrowRight, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 async function getStats() {
   const supabase = await createClient()
-  const [businesses, vouches, pendingBusinesses, pendingClaims, openReports, openConcerns] = await Promise.all([
+  const svc = createServiceClient()
+  const [businesses, vouches, pendingBusinesses, pendingClaims, openReports, openConcerns, users, unverifiedUsers] = await Promise.all([
     supabase.from('businesses').select('*', { count: 'exact', head: true }),
     supabase.from('vouches').select('*', { count: 'exact', head: true }),
     supabase.from('businesses').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('claims').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'open'),
     supabase.from('concerns').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+    svc.from('profiles').select('*', { count: 'exact', head: true }).not('email', 'like', '%demo.ivouch.local'),
+    svc.from('profiles').select('*', { count: 'exact', head: true }).eq('verification_status', 'unverified').not('email', 'like', '%demo.ivouch.local'),
   ])
   return {
     businesses: businesses.count ?? 0,
@@ -19,6 +23,8 @@ async function getStats() {
     pendingClaims: pendingClaims.count ?? 0,
     openReports: openReports.count ?? 0,
     openConcerns: openConcerns.count ?? 0,
+    users: users.count ?? 0,
+    unverifiedUsers: unverifiedUsers.count ?? 0,
   }
 }
 
@@ -26,6 +32,7 @@ export default async function AdminDashboard() {
   const stats = await getStats()
 
   const cards = [
+    { label: 'Registered users', value: stats.users, icon: Users, href: '/admin/users', accent: false },
     { label: 'Total businesses', value: stats.businesses, icon: Store, href: '/admin/businesses', accent: false },
     { label: 'Total vouches', value: stats.vouches, icon: ShieldCheck, href: '/admin/vouches', accent: false },
     { label: 'Pending businesses', value: stats.pendingBusinesses, icon: Clock, href: '/admin/businesses?status=pending', accent: stats.pendingBusinesses > 0 },
@@ -39,6 +46,7 @@ export default async function AdminDashboard() {
     { label: `Review ${stats.pendingClaims} pending claims`, href: '/admin/claims', show: stats.pendingClaims > 0 },
     { label: `Look at ${stats.openReports} open reports`, href: '/admin/vouches', show: stats.openReports > 0 },
     { label: `Review ${stats.openConcerns} open concerns`, href: '/admin/concerns', show: stats.openConcerns > 0 },
+    { label: `Confirm residency for ${stats.unverifiedUsers} unverified users`, href: '/admin/users', show: stats.unverifiedUsers > 0 },
     { label: 'Manage communities', href: '/admin/communities', show: true },
     { label: 'Manage categories', href: '/admin/categories', show: true },
   ].filter((a) => a.show)
