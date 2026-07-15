@@ -14,6 +14,7 @@ export interface EditableBusiness {
   description: string | null
   phone: string | null
   whatsapp: string | null
+  email: string | null
   website: string | null
   address_text: string | null
   primary_category_id: string | null
@@ -30,6 +31,7 @@ export default function BusinessEditForm({ business }: { business: EditableBusin
     description: business.description ?? '',
     phone: business.phone ?? '',
     whatsapp: business.whatsapp ?? '',
+    email: business.email ?? '',
     website: business.website ?? '',
     address_text: business.address_text ?? '',
     primary_category_id: business.primary_category_id ?? '',
@@ -118,6 +120,10 @@ export default function BusinessEditForm({ business }: { business: EditableBusin
                   <label className={labelClass} style={{ color: 'var(--ink)' }}>WhatsApp</label>
                   <input type="tel" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className={inputClass} style={inputStyle} />
                 </div>
+              </div>
+              <div>
+                <label className={labelClass} style={{ color: 'var(--ink)' }}>Email <span className="font-normal text-gray-400">(not shown publicly)</span></label>
+                <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="hello@business.co.za" className={inputClass} style={inputStyle} />
               </div>
               <div>
                 <label className={labelClass} style={{ color: 'var(--ink)' }}>Website</label>

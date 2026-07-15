@@ -24,6 +24,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     description: clean(body.description),
     phone: clean(body.phone),
     whatsapp: clean(body.whatsapp),
+    email: clean(body.email)?.toLowerCase() ?? null,
     website: clean(body.website),
     address_text: clean(body.address_text),
     primary_category_id: clean(body.primary_category_id),

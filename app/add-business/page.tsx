@@ -37,6 +37,7 @@ export default function AddBusinessPage() {
     description: '',
     phone: '',
     whatsapp: '',
+    email: '',
     website: '',
     address_text: '',
     isOwner: false,
@@ -119,6 +120,7 @@ export default function AddBusinessPage() {
       p_category_id: form.categoryId || null,
       p_phone: form.phone,
       p_whatsapp: form.whatsapp,
+      p_email: form.email,
       p_website: form.website,
       p_address: address,
       p_in_ward: inWard,
@@ -276,6 +278,18 @@ export default function AddBusinessPage() {
                   onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
                   placeholder="082 xxx xxxx" className={inputClass} style={inputStyle} />
               </div>
+            </div>
+
+            <div>
+              <label className={labelClass} style={labelStyle}>
+                Email {form.isOwner ? '*' : <span className="font-normal text-gray-400">(recommended)</span>}
+              </label>
+              <input type="email" value={form.email} required={form.isOwner}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="hello@business.co.za" className={inputClass} style={inputStyle} />
+              <p className="text-xs text-gray-400 mt-1">
+                So we can reach the business about its listing and vouches. Not shown publicly.
+              </p>
             </div>
 
             <div>

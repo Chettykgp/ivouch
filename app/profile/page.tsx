@@ -35,6 +35,7 @@ interface MyBusinessRow {
   description: string | null
   phone: string | null
   whatsapp: string | null
+  email: string | null
   website: string | null
   address_text: string | null
   primary_category_id: string | null
@@ -74,7 +75,7 @@ export default async function ProfilePage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('businesses')
-        .select('id, name, slug, images, status, claimed_status, owner_user_id, created_by_user_id, description, phone, whatsapp, website, address_text, primary_category_id, in_ward')
+        .select('id, name, slug, images, status, claimed_status, owner_user_id, created_by_user_id, description, phone, whatsapp, email, website, address_text, primary_category_id, in_ward')
         .or(`created_by_user_id.eq.${profile.id},owner_user_id.eq.${profile.id}`)
         .order('created_at', { ascending: false }),
     ])
