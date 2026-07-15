@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { Phone, Globe, MapPin, BadgeCheck, ShieldCheck } from 'lucide-react'
+import { Phone, Globe, MapPin, BadgeCheck, ShieldCheck, ArrowRight } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ShareVouchButton from '@/components/business/ShareVouchButton'
@@ -309,6 +309,29 @@ export default async function BusinessProfilePage({ params }: Props) {
               )}
             </div>
 
+            {/* Claim this business — prominent when unclaimed */}
+            {!business.claimed_status && (
+              <Link
+                href={`/claim/${business.id}`}
+                className="block card-soft p-4 transition-colors hover:border-[var(--ivouch-blue)]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="icon-tile w-10 h-10 flex-shrink-0">
+                    <BadgeCheck size={18} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+                      Is this your business?
+                    </span>
+                    <span className="block text-xs text-gray-400">
+                      Claim it free to manage your listing &amp; details.
+                    </span>
+                  </span>
+                  <ArrowRight size={16} className="ml-auto flex-shrink-0" style={{ color: 'var(--ivouch-blue)' }} />
+                </div>
+              </Link>
+            )}
+
             {/* Different experience? */}
             <ConcernButton businessId={business.id} businessName={business.name} />
 
@@ -316,11 +339,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             <ShareVouchButton businessName={business.name} slug={business.slug} />
 
             {/* Secondary links */}
-            <div className="text-xs text-center space-x-3 text-gray-400">
-              {!business.claimed_status && (
-                <Link href={`/claim/${business.id}`} className="hover:text-gray-600">Claim this business</Link>
-              )}
-              <span>·</span>
+            <div className="text-xs text-center text-gray-400">
               <ReportButton targetType="business" targetId={business.id} />
             </div>
           </div>
