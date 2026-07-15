@@ -21,7 +21,7 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
   const [query, setQuery] = useState('')
   const [activeGroup, setActiveGroup] = useState<string>(ALL)
   const [sort, setSort] = useState<SortMode>('az')
-  const [onlyWithListings, setOnlyWithListings] = useState(false)
+  const [onlyWithVouches, setOnlyWithVouches] = useState(false)
 
   const groupNames = useMemo(() => groups.map((g) => g.group_name), [groups])
 
@@ -30,8 +30,8 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
     () => groups.flatMap((g) => g.categories.map((c) => ({ ...c, group: g.group_name }))),
     [groups]
   )
-  const totalWithListings = useMemo(
-    () => allCats.filter((c) => (c.business_count ?? 0) > 0).length,
+  const totalWithVouches = useMemo(
+    () => allCats.filter((c) => (c.vouch_count ?? 0) > 0).length,
     [allCats]
   )
 
@@ -40,16 +40,16 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
     const q = query.trim().toLowerCase()
     let list = allCats.filter((c) => {
       if (activeGroup !== ALL && c.group !== activeGroup) return false
-      if (onlyWithListings && (c.business_count ?? 0) === 0) return false
+      if (onlyWithVouches && (c.vouch_count ?? 0) === 0) return false
       if (q && !c.name.toLowerCase().includes(q)) return false
       return true
     })
     list =
       sort === 'count'
-        ? [...list].sort((a, b) => (b.business_count ?? 0) - (a.business_count ?? 0) || a.name.localeCompare(b.name))
+        ? [...list].sort((a, b) => (b.vouch_count ?? 0) - (a.vouch_count ?? 0) || a.name.localeCompare(b.name))
         : [...list].sort((a, b) => a.name.localeCompare(b.name))
     return list
-  }, [allCats, query, activeGroup, onlyWithListings, sort])
+  }, [allCats, query, activeGroup, onlyWithVouches, sort])
 
   // Re-group filtered results in canonical group order (skip empty groups).
   const displayGroups = useMemo(() => {
@@ -109,26 +109,26 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
       <div className="flex items-center justify-between gap-3 flex-wrap mb-6">
         <span className="text-sm text-gray-500">
           {filtered.length} {filtered.length === 1 ? 'service' : 'services'}
-          {onlyWithListings ? ' with listings' : ''}
+          {onlyWithVouches ? ' vouched for' : ''}
         </span>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setOnlyWithListings((v) => !v)}
+            onClick={() => setOnlyWithVouches((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors"
             style={
-              onlyWithListings
+              onlyWithVouches
                 ? { backgroundColor: 'var(--vouch-green)', color: '#fff', borderColor: 'var(--vouch-green)' }
                 : { backgroundColor: '#fff', color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }
             }
           >
-            {onlyWithListings && <Check size={13} />} Only with listings ({totalWithListings})
+            {onlyWithVouches && <Check size={13} />} Only with vouches ({totalWithVouches})
           </button>
           <button
             onClick={() => setSort((s) => (s === 'az' ? 'count' : 'az'))}
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border bg-white transition-colors hover:border-[var(--ivouch-blue)]"
             style={{ color: 'var(--ink)', borderColor: 'var(--cloud-grey)' }}
           >
-            <ArrowUpDown size={13} /> {sort === 'az' ? 'A–Z' : 'Most listings'}
+            <ArrowUpDown size={13} /> {sort === 'az' ? 'A–Z' : 'Most vouched'}
           </button>
         </div>
       </div>
@@ -145,7 +145,8 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {group.categories.map((cat) => {
-                  const count = cat.business_count ?? 0
+                  const biz = cat.business_count ?? 0
+                  const vch = cat.vouch_count ?? 0
                   return (
                     <Link
                       key={cat.id}
@@ -157,8 +158,9 @@ export default function CategoryDirectory({ groups, wardSlug }: CategoryDirector
                         <span className="block font-semibold text-sm truncate" style={{ color: 'var(--ink)' }}>
                           {cat.name}
                         </span>
-                        <span className="block text-xs" style={{ color: count > 0 ? 'var(--ivouch-blue)' : '#9aa4b2' }}>
-                          {count} {count === 1 ? 'business' : 'businesses'}
+                        <span className="block text-xs" style={{ color: vch > 0 ? 'var(--ivouch-blue)' : '#9aa4b2' }}>
+                          {biz} {biz === 1 ? 'business' : 'businesses'}
+                          {vch > 0 && <span className="font-semibold"> · {vch} vouch{vch === 1 ? '' : 'es'}</span>}
                         </span>
                       </span>
                     </Link>

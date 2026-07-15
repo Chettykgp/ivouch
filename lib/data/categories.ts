@@ -102,16 +102,35 @@ export async function getCategoryBusinessCounts(): Promise<Record<string, number
   return counts
 }
 
+/** Count of active vouches per category (via each vouch's active business). */
+export async function getCategoryVouchCounts(): Promise<Record<string, number>> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('vouches')
+    .select('business:businesses!inner(primary_category_id, status)')
+    .eq('status', 'active')
+    .eq('business.status', 'active')
+  if (error || !data) return {}
+  const counts: Record<string, number> = {}
+  for (const row of data as unknown as { business: { primary_category_id: string | null } | null }[]) {
+    const id = row.business?.primary_category_id
+    if (id) counts[id] = (counts[id] ?? 0) + 1
+  }
+  return counts
+}
+
 /** All categories grouped by group_name, in the canonical group order. */
 export async function getCategoriesGrouped(withCounts = false): Promise<CategoryGroup[]> {
   const cats = await getCategories()
-  const counts = withCounts ? await getCategoryBusinessCounts() : {}
+  const [counts, vouchCounts] = withCounts
+    ? await Promise.all([getCategoryBusinessCounts(), getCategoryVouchCounts()])
+    : [{} as Record<string, number>, {} as Record<string, number>]
 
   const byGroup = new Map<string, Category[]>()
   for (const cat of cats) {
     const group = cat.group_name ?? 'Other Services'
     const enriched: Category = withCounts
-      ? { ...cat, business_count: counts[cat.id] ?? 0 }
+      ? { ...cat, business_count: counts[cat.id] ?? 0, vouch_count: vouchCounts[cat.id] ?? 0 }
       : cat
     if (!byGroup.has(group)) byGroup.set(group, [])
     byGroup.get(group)!.push(enriched)

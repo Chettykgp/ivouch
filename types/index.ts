@@ -93,6 +93,7 @@ export interface Category {
   sort_order: number | null
   is_featured: boolean | null
   business_count?: number
+  vouch_count?: number
 }
 
 export interface CategoryGroup {
