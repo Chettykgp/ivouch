@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { Business } from '@/types'
 
@@ -5,18 +6,26 @@ async function updateBusinessStatus(id: string, status: string) {
   'use server'
   const { createClient: createSC } = await import('@/lib/supabase/server')
   const supabase = await createSC()
-  const { data: biz } = await supabase
+  const { data: biz, error } = await supabase
     .from('businesses')
     .update({ status })
     .eq('id', id)
     .select('name, slug, email')
     .single()
 
+  if (error) {
+    console.error('[admin] updateBusinessStatus failed:', error.message)
+    return
+  }
+
   // Congratulate the owner when their listing goes live (if we have an email).
   if (status === 'active' && biz?.email) {
     const { sendEmail, businessApprovedEmail } = await import('@/lib/email')
     await sendEmail(businessApprovedEmail(biz.email, biz.name, biz.slug))
   }
+
+  revalidatePath('/admin/businesses')
+  revalidatePath('/admin')
 }
 
 export default async function AdminBusinessesPage({

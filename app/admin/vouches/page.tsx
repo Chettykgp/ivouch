@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { Vouch } from '@/types'
 
@@ -13,7 +14,10 @@ export default async function AdminVouchesPage() {
     'use server'
     const { createClient: sc } = await import('@/lib/supabase/server')
     const s = await sc()
-    await s.from('vouches').update({ status }).eq('id', id)
+    const { error } = await s.from('vouches').update({ status }).eq('id', id)
+    if (error) { console.error('[admin] updateVouch failed:', error.message); return }
+    revalidatePath('/admin/vouches')
+    revalidatePath('/admin')
   }
 
   const statusColors: Record<string, string> = {

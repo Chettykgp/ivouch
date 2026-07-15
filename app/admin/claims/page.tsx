@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { Claim } from '@/types'
 
@@ -12,7 +13,10 @@ export default async function AdminClaimsPage() {
     'use server'
     const { createClient: sc } = await import('@/lib/supabase/server')
     const s = await sc()
-    await s.from('claims').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id)
+    const { error } = await s.from('claims').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id)
+    if (error) { console.error('[admin] updateClaim failed:', error.message); return }
+    revalidatePath('/admin/claims')
+    revalidatePath('/admin')
   }
 
   return (

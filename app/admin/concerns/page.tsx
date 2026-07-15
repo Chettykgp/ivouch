@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import { formatDistanceToNow } from 'date-fns'
 import { getAllConcernsAdmin } from '@/lib/data/concerns'
 
@@ -5,7 +6,10 @@ async function updateConcernStatus(id: string, status: string) {
   'use server'
   const { createClient } = await import('@/lib/supabase/server')
   const supabase = await createClient()
-  await supabase.from('concerns').update({ status }).eq('id', id)
+  const { error } = await supabase.from('concerns').update({ status }).eq('id', id)
+  if (error) { console.error('[admin] updateConcern failed:', error.message); return }
+  revalidatePath('/admin/concerns')
+  revalidatePath('/admin')
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
