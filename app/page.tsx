@@ -201,9 +201,9 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ─────────────── WELCOME + ACTIVITY FEED (social) ─────────────── */}
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-          <div className="text-center mb-7">
+        {/* ─────────────── WELCOME + ACTIVITY FEED (social) + TRENDING ─────────────── */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+          <div className="text-center mb-8">
             <span className="inline-flex items-center gap-1.5 chip chip-blue mb-3">
               <Sparkles size={14} /> Welcome, neighbour
             </span>
@@ -215,29 +215,33 @@ export default async function HomePage() {
               {vouchCount > 0 && <> {nf(vouchCount)} vouches and counting.</>}
             </p>
           </div>
-          <ActivityFeed
-            items={recentVouches}
-            emptyMessage="No vouches yet — be the first to vouch for a neighbour in Ward 23!"
-          />
-        </section>
 
-        {/* ─────────────── TRENDING IN WARD 23 ─────────────── */}
-        {trending.length > 0 && (
-          <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-14">
-            <div className="text-center mb-7">
-              <span className="inline-flex items-center gap-1.5 chip chip-blue mb-3">
-                🔥 Hot right now
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold" style={{ color: 'var(--ink)' }}>
-                Trending in <span style={{ color: 'var(--ivouch-blue)' }}>Ward 23</span>
-              </h2>
-              <p className="text-gray-500 mt-2 max-w-xl mx-auto">
-                Businesses your neighbours are vouching for right now.
-              </p>
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+            {/* Activity feed */}
+            <div className="lg:col-span-2">
+              <ActivityFeed
+                items={recentVouches}
+                emptyMessage="No vouches yet — be the first to vouch for a neighbour in Ward 23!"
+              />
             </div>
-            <TrendingBoard businesses={trending} />
-          </section>
-        )}
+
+            {/* Trending card */}
+            {trending.length > 0 && (
+              <aside className="lg:col-span-1 lg:sticky lg:top-24">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg" aria-hidden>🔥</span>
+                  <h3 className="font-extrabold" style={{ color: 'var(--ink)' }}>
+                    Trending in Ward 23
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-400 mb-3 -mt-1">
+                  Businesses your neighbours are vouching for right now.
+                </p>
+                <TrendingBoard businesses={trending} compact />
+              </aside>
+            )}
+          </div>
+        </section>
 
         {/* ─────────────── CATEGORIES — minimal, filterable list ─────────────── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
