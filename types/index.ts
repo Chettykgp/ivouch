@@ -151,6 +151,9 @@ export interface Vouch {
   service_category_id: string | null
   comment: string | null
   tags: string[]
+  neighbourhood: string | null
+  owner_reply: string | null
+  owner_reply_at: string | null
   status: VouchStatus
   created_at: string
   updated_at: string

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Menu, X, ChevronDown, MapPin, Grid3x3, Store } from 'lucide-react'
 import Logo from './Logo'
 import AuthNav from './AuthNav'
+import HeaderSearch from './HeaderSearch'
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -62,7 +63,8 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center gap-3">
+          <HeaderSearch />
           <AuthNav />
         </div>
 
@@ -80,6 +82,9 @@ export default function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white border-t px-3 pb-4 pt-2 space-y-0.5" style={{ borderColor: 'var(--cloud-grey)' }}>
+          <div className="px-2 pb-2 pt-1">
+            <HeaderSearch variant="mobile" />
+          </div>
           <Link href="/categories" className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-[var(--mist)]" style={{ color: 'var(--ink)' }} onClick={() => setMobileOpen(false)}>
             <Grid3x3 size={17} style={{ color: 'var(--ivouch-blue)' }} /> Categories
           </Link>

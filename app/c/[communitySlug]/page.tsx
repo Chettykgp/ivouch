@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { MapPin, Store, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import BusinessCard from '@/components/business/BusinessCard'
+import BusinessGrid from '@/components/business/BusinessGrid'
 import CategoryChips from '@/components/community/CategoryChips'
 import ActivityFeed from '@/components/feed/ActivityFeed'
 import { resolveCommunityContext } from '@/lib/community/resolve-community-context'
@@ -133,11 +133,7 @@ export default async function CommunityPage({ params }: Props) {
                   : 'No businesses yet'}
               </h2>
               {businesses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {businesses.map((business) => (
-                    <BusinessCard key={business.id} business={business} />
-                  ))}
-                </div>
+                <BusinessGrid businesses={businesses} />
               ) : (
                 <div className="card-soft text-center py-16 px-4">
                   <div className="text-4xl mb-3">🏘️</div>

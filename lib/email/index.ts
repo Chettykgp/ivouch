@@ -97,6 +97,20 @@ export function businessApprovedEmail(to: string, businessName: string, slug: st
   }
 }
 
+export function photoNudgeEmail(to: string, businessName: string, slug: string): EmailOptions {
+  return {
+    to,
+    subject: `📸 ${businessName} — add your 2 free photos on iVouch`,
+    html: renderTemplate(
+      `Make ${businessName} stand out`,
+      `<p>Neighbours in Ward 23 are already vouching for <strong>${businessName}</strong> — nice work!</p>
+       <p>Listings with photos catch far more eyes. You can add up to <strong>2 free photos</strong> (a cover shot, your work, or a menu) in under a minute.</p>
+       <p><a href="https://ivouch.co.za/profile" style="display:inline-block;background:${BRAND.blue};color:#fff;font-weight:700;padding:12px 22px;border-radius:999px;text-decoration:none;">Add my photos</a></p>
+       <p style="color:#5A6B85;font-size:13px;">Sign in, open <em>My Businesses</em> on your profile, and tap the photo uploader. Your public listing: <a href="https://ivouch.co.za/b/${slug}">ivouch.co.za/b/${slug}</a></p>`
+    ),
+  }
+}
+
 export function newBusinessAdminEmail(to: string, businessName: string): EmailOptions {
   return {
     to,

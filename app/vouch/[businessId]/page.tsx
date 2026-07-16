@@ -98,18 +98,13 @@ export default function VouchPage() {
     setLoading(true)
     setError(null)
 
-    // Fold the (optional) neighbourhood into the comment so it stays visible,
-    // while community_id is always the single Ward 23 community.
-    const parts: string[] = []
-    if (comment.trim()) parts.push(comment.trim())
-    const finalComment = parts.length > 0 ? parts.join(' ') : null
-
     const { error: vErr } = await supabase.from('vouches').insert({
       business_id: businessId,
       user_id: profileId,
       community_id: wardId,
       tags: selectedTags,
-      comment: finalComment,
+      comment: comment.trim() || null,
+      neighbourhood: neighbourhood || null,
       status: 'active',
     })
 

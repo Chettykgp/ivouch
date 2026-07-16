@@ -189,6 +189,12 @@ export default async function ProfilePage() {
                         )}
                       </div>
 
+                      {(!b.images || b.images.length === 0) && (
+                        <div className="rounded-xl px-3.5 py-2.5 text-xs"
+                          style={{ backgroundColor: 'var(--ivouch-blue-soft)', color: 'var(--ivouch-blue-dark)' }}>
+                          📸 Listings with photos get noticed — add up to 2 free photos below.
+                        </div>
+                      )}
                       <BusinessPhotoManager businessId={b.id} initialImages={b.images ?? []} compact />
                     </div>
                   )

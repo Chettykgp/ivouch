@@ -7,9 +7,11 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ActivityFeed from '@/components/feed/ActivityFeed'
 import CategoryExplorer, { type ExplorerCategory } from '@/components/community/CategoryExplorer'
+import TrendingBoard from '@/components/business/TrendingBoard'
 import { getCommunityWithContext, getCommunityStats } from '@/lib/data/communities'
 import { getFeaturedCategories, getCategoriesGrouped } from '@/lib/data/categories'
 import { getRecentActivity } from '@/lib/data/activity'
+import { getTrendingBusinesses, type TrendingBusiness } from '@/lib/data/trending'
 import type { Category } from '@/types'
 
 export const revalidate = 120
@@ -24,6 +26,7 @@ export default async function HomePage() {
   let vouchCount = 0
   let featured: Category[] = []
   let recentVouches: Awaited<ReturnType<typeof getRecentActivity>> = []
+  let trending: TrendingBusiness[] = []
   let categoryList: ExplorerCategory[] = []
   let groupNames: string[] = []
 
@@ -41,6 +44,10 @@ export default async function HomePage() {
 
   try {
     recentVouches = await getRecentActivity(8)
+  } catch { /* noop */ }
+
+  try {
+    trending = await getTrendingBusinesses(6)
   } catch { /* noop */ }
 
   try {
@@ -213,6 +220,24 @@ export default async function HomePage() {
             emptyMessage="No vouches yet — be the first to vouch for a neighbour in Ward 23!"
           />
         </section>
+
+        {/* ─────────────── TRENDING IN WARD 23 ─────────────── */}
+        {trending.length > 0 && (
+          <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-14">
+            <div className="text-center mb-7">
+              <span className="inline-flex items-center gap-1.5 chip chip-blue mb-3">
+                🔥 Hot right now
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold" style={{ color: 'var(--ink)' }}>
+                Trending in <span style={{ color: 'var(--ivouch-blue)' }}>Ward 23</span>
+              </h2>
+              <p className="text-gray-500 mt-2 max-w-xl mx-auto">
+                Businesses your neighbours are vouching for right now.
+              </p>
+            </div>
+            <TrendingBoard businesses={trending} />
+          </section>
+        )}
 
         {/* ─────────────── CATEGORIES — minimal, filterable list ─────────────── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">

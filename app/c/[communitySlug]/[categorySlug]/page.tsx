@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ChevronRight, ArrowRight } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import BusinessCard from '@/components/business/BusinessCard'
+import BusinessGrid from '@/components/business/BusinessGrid'
 import { resolveCommunityContext } from '@/lib/community/resolve-community-context'
 import { getBusinessesForCommunity } from '@/lib/business/get-businesses-for-community'
 import { getCategoryBySlug } from '@/lib/data/categories'
@@ -80,11 +80,7 @@ export default async function CategoryPage({ params }: Props) {
 
         <div className="max-w-6xl mx-auto px-4 py-10">
           {businesses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {businesses.map((b) => (
-                <BusinessCard key={b.id} business={b} />
-              ))}
-            </div>
+            <BusinessGrid businesses={businesses} />
           ) : (
             <div className="card-soft text-center py-16 px-4 max-w-lg mx-auto">
               <div className="text-4xl mb-3">🔎</div>

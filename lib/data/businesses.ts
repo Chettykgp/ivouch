@@ -68,6 +68,32 @@ export async function getMostVouchedBusinesses(limit = 6): Promise<Business[]> {
   return (data ?? []) as unknown as Business[]
 }
 
+/** Same-category active businesses (excluding one), ranked by vouch count. */
+export async function getSimilarBusinesses(
+  businessId: string,
+  categoryId: string | null,
+  limit = 3
+): Promise<Business[]> {
+  if (!categoryId) return []
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('businesses')
+    .select(`
+      *,
+      primary_category:categories(id, name, slug, icon),
+      vouch_count:vouches(count)
+    `)
+    .eq('status', 'active')
+    .eq('primary_category_id', categoryId)
+    .neq('id', businessId)
+  if (error || !data) return []
+  type Row = Omit<Business, 'vouch_count'> & { vouch_count: { count: number }[] | null }
+  return (data as unknown as Row[])
+    .map((r) => ({ ...r, vouch_count: r.vouch_count?.[0]?.count ?? 0 }))
+    .sort((a, b) => (b.vouch_count as number) - (a.vouch_count as number))
+    .slice(0, limit) as Business[]
+}
+
 export async function getAllBusinessesAdmin(): Promise<Business[]> {
   const supabase = await createClient()
   const { data, error } = await supabase

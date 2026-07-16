@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { formatDistanceToNow } from 'date-fns'
 import { Phone, Globe, MapPin, BadgeCheck, ShieldCheck, ArrowRight } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -13,9 +12,12 @@ import ReportButton from '@/components/business/ReportButton'
 import MobileActionBar from '@/components/business/MobileActionBar'
 import ConcernButton from '@/components/business/ConcernButton'
 import BusinessGallery from '@/components/business/BusinessGallery'
-import { getBusinessBySlug } from '@/lib/data/businesses'
+import BusinessCard from '@/components/business/BusinessCard'
+import VouchList, { type VouchListItem } from '@/components/business/VouchList'
+import { getBusinessBySlug, getSimilarBusinesses } from '@/lib/data/businesses'
 import { getVouchesByBusiness, getVouchCount } from '@/lib/data/vouches'
 import { getConcernCount } from '@/lib/data/concerns'
+import { createClient } from '@/lib/supabase/server'
 import { avatarColor, initials } from '@/lib/utils/avatar'
 import { toWhatsAppNumber } from '@/lib/utils/phone'
 
@@ -44,13 +46,29 @@ export default async function BusinessProfilePage({ params }: Props) {
   const business = await getBusinessBySlug(businessSlug)
   if (!business) notFound()
 
-  const [vouches, vouchCount, concernCount] = await Promise.all([
-    getVouchesByBusiness(business.id, 20),
+  const [vouches, vouchCount, concernCount, similar] = await Promise.all([
+    getVouchesByBusiness(business.id, 500),
     getVouchCount(business.id),
     getConcernCount(business.id),
+    getSimilarBusinesses(business.id, business.primary_category_id, 3),
   ])
 
-  // JSON-LD structured data for local search
+  // Can the viewer respond to vouches? Owner of this claimed business, or admin.
+  let canReply = false
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, role')
+      .eq('auth_user_id', user.id)
+      .maybeSingle()
+    canReply =
+      profile?.role === 'admin' ||
+      (business.claimed_status && business.owner_user_id === profile?.id)
+  }
+
+  // JSON-LD structured data for local search (no fabricated star ratings).
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -64,15 +82,6 @@ export default async function BusinessProfilePage({ params }: Props) {
       addressRegion: 'Gauteng',
       addressCountry: 'ZA',
     },
-    aggregateRating:
-      vouchCount > 0
-        ? {
-            '@type': 'AggregateRating',
-            ratingValue: 5,
-            reviewCount: vouchCount,
-            bestRating: 5,
-          }
-        : undefined,
   }
 
   // Aggregate tags -> "Known for" strip.
@@ -222,44 +231,19 @@ export default async function BusinessProfilePage({ params }: Props) {
                 Vouched for by your neighbours ({vouchCount})
               </h2>
               {vouches.length > 0 ? (
-                <div className="space-y-3">
-                  {vouches.map((v) => {
-                    const name = v.profile?.first_name || v.profile?.display_name || 'A neighbour'
-                    const community = (v.community as { name?: string } | undefined)?.name
-                    const color = avatarColor(name + (community ?? ''))
-                    return (
-                      <div key={v.id} className="card-soft p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                            style={{ backgroundColor: color }}>
-                            {initials(name)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-semibold text-sm" style={{ color: 'var(--ink)' }}>
-                                🫶 {name}
-                              </span>
-                              {community && <span className="chip">{community}</span>}
-                              <span className="text-xs text-gray-400 ml-auto">
-                                {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
-                              </span>
-                            </div>
-                            {v.comment && (
-                              <p className="text-sm text-gray-600 mt-1.5">&ldquo;{v.comment}&rdquo;</p>
-                            )}
-                            {v.tags && v.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                {v.tags.map((t) => (
-                                  <span key={t} className="chip chip-blue">{t}</span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                <VouchList
+                  businessName={business.name}
+                  canReply={canReply}
+                  vouches={vouches.map((v): VouchListItem => ({
+                    id: v.id,
+                    created_at: v.created_at,
+                    comment: v.comment,
+                    tags: v.tags ?? [],
+                    neighbourhood: v.neighbourhood ?? null,
+                    owner_reply: v.owner_reply ?? null,
+                    voucherName: v.profile?.first_name || v.profile?.display_name || 'A neighbour',
+                  }))}
+                />
               ) : (
                 <div className="card-soft p-8 text-center">
                   <div className="text-4xl mb-3">🫶</div>
@@ -272,6 +256,21 @@ export default async function BusinessProfilePage({ params }: Props) {
                 </div>
               )}
             </div>
+
+            {/* Similar businesses — keep the browse journey going */}
+            {similar.length > 0 && (
+              <div>
+                <h2 className="font-extrabold text-lg mb-4" style={{ color: 'var(--ink)' }}>
+                  More {business.primary_category?.name?.toLowerCase() ?? 'businesses'} your
+                  neighbours vouch for
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {similar.map((s) => (
+                    <BusinessCard key={s.id} business={s} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
