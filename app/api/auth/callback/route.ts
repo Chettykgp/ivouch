@@ -38,6 +38,24 @@ export async function GET(request: NextRequest) {
         new URL(`/auth?error=${encodeURIComponent(error.message)}`, requestUrl.origin)
       )
     }
+
+    // Magic-link / OTP sign-ins collect no name, and the signup trigger can
+    // leave display_name null. Guarantee a display name from the email prefix
+    // so vouches never show as an anonymous "A neighbour".
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user?.email) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, first_name, display_name')
+        .eq('auth_user_id', user.id)
+        .maybeSingle()
+      if (profile && !profile.display_name && !profile.first_name) {
+        await supabase
+          .from('profiles')
+          .update({ display_name: user.email.split('@')[0] })
+          .eq('id', profile.id)
+      }
+    }
   }
 
   // Only allow same-origin relative redirects.
