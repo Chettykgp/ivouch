@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Ensure the OG share-card assets (self-hosted photos + fonts) are bundled
+  // into the serverless function so a runtime render (a category added after
+  // the last build) can still read them from disk.
+  outputFileTracingIncludes: {
+    '/c/[communitySlug]/[categorySlug]/opengraph-image': [
+      './public/og/**',
+      './assets/fonts/**',
+    ],
+  },
 };
 
 export default nextConfig;
